@@ -1,15 +1,21 @@
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import Loader from '../../components/loaders/Loader';
 
 import Colors from '../../constants/Colors';
 
-const Button = ({ children, navigation }) => {
+const Button = ({ text, handlePress, loading }) => {
   return (
     <TouchableOpacity
       style={styles.authButton}
-      onPress={() => navigation.navigate('home')}
+      onPress={handlePress}
+      disabled={loading}
     >
-      <Text style={styles.authButtonText}>{children}</Text>
+      {loading ? <Loader /> : (
+        <Text style={styles.authButtonText}>
+          {text}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };

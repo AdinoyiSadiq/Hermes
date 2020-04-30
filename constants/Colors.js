@@ -7,4 +7,5 @@ export default {
   colorGreyLight: '#E4E9EF',
   colorGreyLigth1: 'rgba(161, 161, 159, 0.2)',
   colorBlack: '#0B2443',
+  colorRed: '#EA4335',
 };
