@@ -3,7 +3,7 @@ import {
   StyleSheet, ScrollView, Text, TextInput, Image, View
 } from 'react-native';
 import { ifIphoneX } from 'react-native-iphone-x-helper';
-import ProfileHeader from '../containers/user/UserHeader';
+import ProfileHeader from '../containers/profile/ProfileHeader';
 import Button from '../components/buttons/Button';
 import Colors from '../constants/Colors';
 

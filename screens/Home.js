@@ -3,10 +3,12 @@
 import React from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useQuery } from '@apollo/react-hooks';
 import Chats from './Chats';
 import Contacts from './Contacts';
 import Profile from './Profile';
 import Colors from '../constants/Colors';
+import GET_AUTH_USER from '../queries/getAuthUser';
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'chats';
@@ -24,6 +26,10 @@ const TabBarIcon = ({ focused, name }) => {
 };
 
 export default function Home() {
+  const {
+    loading: authUserLoading, error: authUserError, data: authUserData, client
+  } = useQuery(GET_AUTH_USER);
+
   return (
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
@@ -38,20 +44,34 @@ export default function Home() {
     >
       <BottomTab.Screen
         name="Chats"
-        component={Chats}
         options={{
           title: 'Chats',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="chats" />,
         }}
-      />
+      >
+        {(props) => (
+          <Chats
+            navigation={props.navigation}
+            loading={authUserLoading}
+            authUserId={authUserData && authUserData.getAuthUser && authUserData.getAuthUser.id}
+          />
+        )}
+      </BottomTab.Screen>
       <BottomTab.Screen
         name="Contacts"
-        component={Contacts}
         options={{
           title: 'Contacts',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="contacts" />
         }}
-      />
+      >
+        {(props) => (
+          <Contacts
+            navigation={props.navigation}
+            loading={authUserLoading}
+            authUserId={authUserData && authUserData.getAuthUser && authUserData.getAuthUser.id}
+          />
+        )}
+      </BottomTab.Screen>
       <BottomTab.Screen
         name="Profile"
         component={Profile}

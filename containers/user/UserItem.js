@@ -1,42 +1,51 @@
 import * as React from 'react';
 import {
-  StyleSheet, Text, Image, View, TouchableWithoutFeedback
+  StyleSheet, Text, View, TouchableWithoutFeedback
 } from 'react-native';
-
+import UserImage from '../../components/profile/UserImage';
+import formatText from '../../lib/formatText';
+import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
 
 // Note: ensure that it can handle long names and messages
-const UserItem = ({ type, navigation }) => {
+const UserItem = ({
+  item: {
+    user, status, actionUserId, contact, profileImage, lastMessage, unreadMessages
+  },
+  type,
+  navigation
+}) => {
   return (
     <TouchableWithoutFeedback onPress={() => { navigation.navigate('messages'); }}>
       <View style={styles.userItemContainer}>
-        <View>
-          <Image
-            source={require('../../assets/images/avatar-icon.png')}
-            style={styles.userImage}
-          />
-        </View>
+        <UserImage user={{ ...user, profileImage }} />
         { (type === 'chat') ? (
           <View style={styles.userDetailsContainer}>
             <View style={[styles.userDetails, styles.userName]}>
-              <Text style={styles.userNameText}>Priscilla Black</Text>
-              <View style={styles.messageNumberContainer}>
-                <Text style={styles.messageNumber}>112</Text>
-              </View>
+              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
+              {unreadMessages ? (
+                <View style={styles.messageNumberContainer}>
+                  <Text style={styles.messageNumber}>{`${unreadMessages}`}</Text>
+                </View>
+              ) : <View />}
             </View>
             <View style={styles.userDetails}>
-              <Text style={styles.messageText}>This was meant to be the last...</Text>
-              <Text style={styles.messageTime}>12:03PM</Text>
+              <Text style={styles.messageText}>
+                {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
+              </Text>
+              <Text style={styles.messageTime}>
+                {dateFormatter(lastMessage.createdAt)}
+              </Text>
             </View>
           </View>
         ) : (
           <View style={styles.userDetailsContainer}>
             <View style={[styles.userDetails, styles.userName]}>
-              <Text style={styles.userNameText}>Priscilla Black</Text>
+              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
             </View>
             <View style={styles.userDetails}>
               <Text style={[styles.messageText, styles.contactDetailsText]}>
-                Last contacted: 5 days ago
+                {`Last seen: ${dateFormatter(user.lastseen)}`}
               </Text>
             </View>
           </View>
@@ -50,11 +59,7 @@ const styles = StyleSheet.create({
   userItemContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-  },
-  userImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 50,
+    marginBottom: 12
   },
   userDetailsContainer: {
     flex: 1,
@@ -67,6 +72,7 @@ const styles = StyleSheet.create({
   userDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 4
   },
   contactDetailsText: {
     color: Colors.colorGreyDark,
