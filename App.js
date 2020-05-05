@@ -12,6 +12,7 @@ import Signup from './screens/auth/Signup';
 import Signin from './screens/auth/Signin';
 import Home from './screens/Home';
 import Authenticated from './components/auth/isAuthenticated';
+import RequireAuth from './components/auth/requireAuth';
 
 import Colors from './constants/Colors';
 
@@ -61,7 +62,7 @@ export default function App({ skipLoadingScreen }) {
               >
                 <Stack.Screen name="signup" component={Authenticated(Signup, isAuth)} />
                 <Stack.Screen name="signin" component={Authenticated(Signin, isAuth)} />
-                <Stack.Screen name="home" component={Home} />
+                <Stack.Screen name="home" component={RequireAuth(Home, isAuth)} />
               </Stack.Navigator>
             )}
           </Query>

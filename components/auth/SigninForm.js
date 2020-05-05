@@ -97,6 +97,7 @@ const SignupForm = ({ navigation }) => {
       {
         error
         && error.graphQLErrors
+        && error.graphQLErrors[0]
         && error.graphQLErrors[0].message
         && (
           <View style={styles.authErrorContainer}>
