@@ -1,78 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  StyleSheet, ScrollView, Text, TextInput, Image, View
+  StyleSheet, ScrollView, View
 } from 'react-native';
+import { useQuery } from '@apollo/react-hooks';
 import { ifIphoneX } from 'react-native-iphone-x-helper';
 import ProfileHeader from '../containers/profile/ProfileHeader';
-import Button from '../components/buttons/Button';
+import ProfileForm from '../components/profile/ProfileForm';
+import Loader from '../components/loaders/Loader';
 import Colors from '../constants/Colors';
 
-export default function Profile() {
+import GET_USER_PROFILE from '../queries/getUserProfile';
+
+export default function Profile({ navigation, authUserId }) {
+  const [profileLoading, setProfileLoading] = useState(false);
+  const {
+    loading, error, data, refetch, client,
+  } = useQuery(GET_USER_PROFILE);
+
+  const refetchProfile = async () => {
+    setProfileLoading(true);
+    await refetch();
+    setProfileLoading(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <ProfileHeader title="Your Profile" />
       </View>
-      <ScrollView
-        style={{ backgroundColor: 'white' }}
-      >
-        <View style={styles.profileFormContainer}>
-          <View style={styles.profileImagePlaceholder}>
-            <Text style={styles.profileImagePlaceholderText}>PB</Text>
-            <Image style={styles.imageSelectorIcon} source={require('../assets/images/image-selector-icon.png')} />
+      {
+        (loading || profileLoading || !authUserId) ? (
+          <View style={styles.loaderContainer}>
+            <Loader color="orange" />
           </View>
-          <View style={styles.profileInputContainer}>
-            <Text style={styles.profileInputLabel}>First Name</Text>
-            <TextInput
-              placeholder="Enter Your First Name"
-              style={styles.profileInput}
-              placeholderStyle={styles.profileInputPlaceholder}
-              placeholderTextColor={Colors.colorGreyDark}
+        ) : (
+          <ScrollView
+            style={{ backgroundColor: 'white' }}
+          >
+            <ProfileForm
+              profile={data && data.getProfile}
+              fetchProfile={refetchProfile}
+              navigation={navigation}
+              authUserId={authUserId}
             />
-          </View>
-          <View style={styles.profileInputContainer}>
-            <Text style={styles.profileInputLabel}>Last Name</Text>
-            <TextInput
-              placeholder="Enter Your Last Name"
-              style={styles.profileInput}
-              placeholderStyle={styles.profileInputPlaceholder}
-              placeholderTextColor={Colors.colorGreyDark}
-            />
-          </View>
-          <View style={styles.profileInputContainer}>
-            <Text style={styles.profileInputLabel}>Username</Text>
-            <TextInput
-              placeholder="Enter Your Username"
-              style={styles.profileInput}
-              placeholderStyle={styles.profileInputPlaceholder}
-              placeholderTextColor={Colors.colorGreyDark}
-            />
-          </View>
-          <View style={styles.profileInputContainer}>
-            <Text style={styles.profileInputLabel}>Email Address</Text>
-            <TextInput
-              placeholder="Enter Your Email Address"
-              style={styles.profileInput}
-              placeholderStyle={styles.profileInputPlaceholder}
-              placeholderTextColor={Colors.colorGreyDark}
-            />
-          </View>
-          <View style={styles.profileInputContainer}>
-            <Text style={styles.profileInputLabel}>Location</Text>
-            <TextInput
-              placeholder="Enter Your Location"
-              style={styles.profileInput}
-              placeholderStyle={styles.profileInputPlaceholder}
-              placeholderTextColor={Colors.colorGreyDark}
-            />
-          </View>
-          <View style={styles.profileButtonContainer}>
-            <Button>
-              Update Profile
-            </Button>
-          </View>
-        </View>
-      </ScrollView>
+          </ScrollView>
+        )
+      }
     </View>
   );
 }
@@ -91,52 +64,11 @@ const styles = StyleSheet.create({
       paddingTop: '5%',
     })
   },
-  profileFormContainer: {
-    paddingTop: '5%',
-    alignItems: 'center'
-  },
-  profileImagePlaceholder: {
-    position: 'relative',
-    height: 140,
-    width: 140,
-    borderRadius: 300,
-    backgroundColor: Colors.colorOrangeLight,
+  loaderContainer: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    backgroundColor: Colors.colorWhite,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  profileImagePlaceholderText: {
-    fontFamily: 'Muli',
-    fontSize: 60,
-    color: Colors.colorWhite
-  },
-  imageSelectorIcon: {
-    position: 'absolute',
-  },
-  profileInputContainer: {
-    width: '70%',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.colorGreyLight,
-  },
-  profileInputLabel: {
-    fontFamily: 'Muli',
-    fontSize: 12,
-    color: Colors.colorGreyDark,
-    marginTop: '7%',
-  },
-  profileInput: {
-    fontSize: 15,
-    fontFamily: 'Muli',
-    marginTop: '5%',
-    paddingBottom: '5%',
-    textAlign: 'center',
-  },
-  profileInputPlaceholder: {
-    fontFamily: 'Muli',
-  },
-  profileButtonContainer: {
-    alignItems: 'center',
-    paddingTop: '5%',
-    paddingBottom: '5%'
-  }
 });

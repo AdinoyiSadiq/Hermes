@@ -74,12 +74,18 @@ export default function Home() {
       </BottomTab.Screen>
       <BottomTab.Screen
         name="Profile"
-        component={Profile}
         options={{
           title: 'Profile',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="profile" />,
         }}
-      />
+      >
+        {(props) => (
+          <Profile
+            navigation={props.navigation}
+            authUserId={authUserData && authUserData.getAuthUser && authUserData.getAuthUser.id}
+          />
+        )}
+      </BottomTab.Screen>
     </BottomTab.Navigator>
   );
 }

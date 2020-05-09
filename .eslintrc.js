@@ -13,6 +13,7 @@ module.exports = {
     'arrow-body-style': 'off'
   },
   'globals': {
-    "fetch": false
+    "fetch": false,
+    "FormData": true
   }
 }
