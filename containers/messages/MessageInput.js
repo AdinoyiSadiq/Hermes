@@ -1,10 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useMutation } from '@apollo/react-hooks';
 import {
   StyleSheet, TextInput, Image, View, TouchableOpacity
 } from 'react-native';
+import optimisticResponseMessage from '../../lib/optimisticResponse';
+import newActiveUserResponseMessage from '../../lib/newActiveUserResponse';
 import Colors from '../../constants/Colors';
+import CREATE_MESSAGE from '../../mutations/createMessage';
+import GET_ACTIVE_CHATS from '../../queries/getActiveChats';
+import GET_MESSAGES from '../../queries/getMessages';
 
-const MessageInput = () => {
+const MessageInput = ({ user, authUserId }) => {
+  const [message, setMessage] = useState('');
+  const [createMessage, {
+    loading, error, data, client
+  }] = useMutation(CREATE_MESSAGE);
+
+  const handleChange = (text, type) => {
+    if (type === 'message') {
+      setMessage(text);
+    }
+  };
+
+  const handleSubmit = () => {
+    setMessage('');
+    if (message && message.trim()) {
+      const variables = { text: message.trim(), receiverId: user.id };
+      createMessage({
+        variables,
+        optimisticResponse: {
+          ...(optimisticResponseMessage(authUserId, user, message))
+        },
+        // eslint-disable-next-line no-shadow
+        update: (cache, { data: { createMessage } }) => {
+          const activeUsers = cache.readQuery({ query: GET_ACTIVE_CHATS });
+          const existingActiveUser = activeUsers
+                                      && activeUsers.getActiveUsers
+                                      && (activeUsers.getActiveUsers)
+                                        .find((activeUser) => activeUser.user.id === user.id);
+          // eslint-disable-next-line no-shadow
+          const data = cache.readQuery({
+            query: GET_MESSAGES,
+            variables: {
+              receiverId: user.id,
+            },
+          });
+          cache.writeQuery({
+            query: GET_MESSAGES,
+            variables: { receiverId: user.id },
+            data: { getMessages: [createMessage, ...data.getMessages] }
+          });
+          if (!existingActiveUser) {
+            const newActiveUser = { ...(newActiveUserResponseMessage(user, createMessage)) };
+            cache.writeQuery({
+              query: GET_ACTIVE_CHATS,
+              data: { getActiveUsers: [newActiveUser, ...activeUsers.getActiveUsers] }
+            });
+          } else {
+            const updatedActiveUsersList = (activeUsers.getActiveUsers).map((activeUser) => {
+              const updatedActiveUser = activeUser;
+              if (activeUser.user.id === user.id) {
+                updatedActiveUser.lastMessage.text = createMessage.text;
+                updatedActiveUser.lastMessage.createdAt = createMessage.createdAt;
+                updatedActiveUser.lastMessage.image = null;
+              }
+              return updatedActiveUser;
+            });
+            cache.writeQuery({
+              query: GET_ACTIVE_CHATS,
+              data: { getActiveUsers: [...updatedActiveUsersList] }
+            });
+          }
+        }
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity>
@@ -16,7 +87,9 @@ const MessageInput = () => {
       </TouchableOpacity>
       <View style={styles.messageInputContainer}>
         <TextInput
-          placeholder="Message..."
+          value={message}
+          onChangeText={(text) => handleChange(text, 'message')}
+          placeholder="Type a message"
         />
       </View>
       <TouchableOpacity>
@@ -26,7 +99,7 @@ const MessageInput = () => {
           />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={handleSubmit}>
         <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
           <Image
             source={require('../../assets/images/message-send-icon.png')}
