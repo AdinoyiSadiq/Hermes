@@ -3,27 +3,28 @@ import {
   StyleSheet, Image, Text, View, TouchableOpacity
 } from 'react-native';
 import Colors from '../../constants/Colors';
+import { timeFormatter } from '../../lib/dateFormatter';
 
-const MessageSent = () => {
+const MessageSent = ({ messageDetails }) => {
   return (
-    <TouchableOpacity>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <TouchableOpacity>
         <View style={styles.messageSentContainer}>
           <Text style={styles.messageText}>
-            How about we think about this synergistically and not underwhelm expectations?
+            {messageDetails && messageDetails.text}
           </Text>
         </View>
-        <View style={styles.messageDetailsContainer}>
-          <Text style={styles.messageSentTime}>
-            11:43AM
-          </Text>
-          <View style={styles.messageReadReceiptsContainer}>
-            <Image style={styles.messageReadReceipt} source={require('../../assets/images/read-receipt-orange-icon.png')} />
-            <Image source={require('../../assets/images/read-receipt-orange-icon.png')} />
-          </View>
+      </TouchableOpacity>
+      <View style={styles.messageDetailsContainer}>
+        <Text style={styles.messageSentTime}>
+          {messageDetails && timeFormatter(messageDetails.createdAt)}
+        </Text>
+        <View style={styles.messageReadReceiptsContainer}>
+          <Image style={styles.messageReadReceipt} source={require('../../assets/images/read-receipt-orange-icon.png')} />
+          <Image source={require('../../assets/images/read-receipt-orange-icon.png')} />
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

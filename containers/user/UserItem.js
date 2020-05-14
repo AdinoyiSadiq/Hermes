@@ -6,6 +6,7 @@ import UserImage from '../../components/profile/UserImage';
 import formatText from '../../lib/formatText';
 import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
+import AuthUserContext from '../../context/AuthUser';
 
 // Note: ensure that it can handle long names and messages
 const UserItem = ({
@@ -16,42 +17,52 @@ const UserItem = ({
   navigation
 }) => {
   return (
-    <TouchableWithoutFeedback onPress={() => { navigation.navigate('messages'); }}>
-      <View style={styles.userItemContainer}>
-        <UserImage user={{ ...user, profileImage }} />
-        { (type === 'chat') ? (
-          <View style={styles.userDetailsContainer}>
-            <View style={[styles.userDetails, styles.userName]}>
-              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
-              {unreadMessages ? (
-                <View style={styles.messageNumberContainer}>
-                  <Text style={styles.messageNumber}>{`${unreadMessages}`}</Text>
+    <AuthUserContext.Consumer>
+      {({ authUserId }) => (
+        <TouchableWithoutFeedback onPress={() => {
+          navigation.navigate('messages', {
+            user: { ...user, profileImage },
+            authUserId,
+          });
+        }}
+        >
+          <View style={styles.userItemContainer}>
+            <UserImage user={{ ...user, profileImage }} />
+            { (type === 'chat') ? (
+              <View style={styles.userDetailsContainer}>
+                <View style={[styles.userDetails, styles.userName]}>
+                  <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
+                  {unreadMessages ? (
+                    <View style={styles.messageNumberContainer}>
+                      <Text style={styles.messageNumber}>{`${unreadMessages}`}</Text>
+                    </View>
+                  ) : <View />}
                 </View>
-              ) : <View />}
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.messageText}>
-                {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
-              </Text>
-              <Text style={styles.messageTime}>
-                {dateFormatter(lastMessage.createdAt)}
-              </Text>
-            </View>
+                <View style={styles.userDetails}>
+                  <Text style={styles.messageText}>
+                    {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
+                  </Text>
+                  <Text style={styles.messageTime}>
+                    {dateFormatter(lastMessage.createdAt)}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.userDetailsContainer}>
+                <View style={[styles.userDetails, styles.userName]}>
+                  <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
+                </View>
+                <View style={styles.userDetails}>
+                  <Text style={[styles.messageText, styles.contactDetailsText]}>
+                    {`Last seen: ${dateFormatter(user.lastseen)}`}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
-        ) : (
-          <View style={styles.userDetailsContainer}>
-            <View style={[styles.userDetails, styles.userName]}>
-              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
-            </View>
-            <View style={styles.userDetails}>
-              <Text style={[styles.messageText, styles.contactDetailsText]}>
-                {`Last seen: ${dateFormatter(user.lastseen)}`}
-              </Text>
-            </View>
-          </View>
-        )}
-      </View>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      )}
+    </AuthUserContext.Consumer>
   );
 };
 

@@ -8,6 +8,7 @@ import Messages from './Messages';
 import ContactProfile from './profile/ContactProfile';
 import Colors from '../constants/Colors';
 import Loader from '../components/loaders/Loader';
+import AuthUserContext from '../context/AuthUser';
 
 import GET_ACTIVE_CHATS from '../queries/getActiveChats';
 
@@ -40,12 +41,14 @@ export default function Chats({ navigation, loading, authUserId }) {
       <Stack.Screen name="activeChats">
         {(props) => {
           return (
-            <UserListWrapper
-              type="chat"
-              loading={activeChatsLoading}
-              data={activeChatsData && activeChatsData.getActiveUsers}
-              navigation={props.navigation}
-            />
+            <AuthUserContext.Provider value={{ authUserId }}>
+              <UserListWrapper
+                type="chat"
+                loading={activeChatsLoading}
+                data={activeChatsData && activeChatsData.getActiveUsers}
+                navigation={props.navigation}
+              />
+            </AuthUserContext.Provider>
           );
         }}
       </Stack.Screen>
@@ -55,6 +58,7 @@ export default function Chats({ navigation, loading, authUserId }) {
             <Messages
               setTabBarVisibility={setTabBarVisibility}
               navigation={props.navigation}
+              route={props.route}
             />
           );
         }}
