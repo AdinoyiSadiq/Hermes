@@ -3,8 +3,12 @@ import {
   StyleSheet, Text, Image, View, TouchableOpacity
 } from 'react-native';
 import Colors from '../../constants/Colors';
+import UserImage from '../../components/profile/UserImage';
+import formatText from '../../lib/formatText';
 
-const MessagesListHeader = ({ navigateBack, navigateToContactProfile }) => {
+const MessagesListHeader = ({
+  user, authUserId, navigateBack, navigateToContactProfile,
+}) => {
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity
@@ -20,11 +24,11 @@ const MessagesListHeader = ({ navigateBack, navigateToContactProfile }) => {
         style={styles.userProfileDetailsContainer}
         onPress={() => navigateToContactProfile()}
       >
-        <View style={styles.userProfileImagePlaceholder}>
-          <Text style={styles.userProfileImagePlaceholderText}>PB</Text>
-        </View>
+        <UserImage user={user} size="small" />
         <View style={styles.userProfileDetails}>
-          <Text style={styles.userProfileDetailsName}>Priscilla Black</Text>
+          <Text style={styles.userProfileDetailsName}>
+            {`${formatText(user.firstname)} ${formatText(user.lastname)}`}
+          </Text>
           <Text style={styles.userProfileDetailsStatus}>Online</Text>
         </View>
       </TouchableOpacity>
@@ -44,22 +48,8 @@ const styles = StyleSheet.create({
   backNavButton: {
     marginRight: 16,
   },
-  userProfileImagePlaceholder: {
-    height: 32,
-    width: 32,
-    borderRadius: 50,
-    marginRight: 16,
-    backgroundColor: Colors.colorOrangeLight1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   userProfileDetailsContainer: {
     flexDirection: 'row'
-  },
-  userProfileImagePlaceholderText: {
-    color: Colors.colorWhite,
-    fontFamily: 'Muli',
-    fontSize: 14,
   },
   userProfileDetailsName: {
     fontSize: 16,
