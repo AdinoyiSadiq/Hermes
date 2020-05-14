@@ -83,7 +83,10 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
         loading={messagesLoading}
         getMoreMessages={getMoreMessages}
       />
-      <MessageInput />
+      <MessageInput
+        user={user}
+        authUserId={authUserId}
+      />
     </View>
   );
 }
