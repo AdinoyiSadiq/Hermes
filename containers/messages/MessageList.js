@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import {
-  StyleSheet, View, Text, SafeAreaView, FlatList,
+  StyleSheet, View, Text, SafeAreaView, FlatList
 } from 'react-native';
 import MessageSent from '../../components/messages/MessageSent';
 import MessageReceived from '../../components/messages/MessageReceived';
@@ -11,7 +11,7 @@ import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
 
 const MessageList = ({
-  authUserId, messages, loading, getMoreMessages,
+  authUserId, messages, loading, getMoreMessages, showOptions, setShowOptionsState
 }) => {
   const handleEndReached = () => {
     getMoreMessages();
@@ -31,6 +31,8 @@ const MessageList = ({
           <MessageSent
             authUserId={authUserId}
             messageDetails={message}
+            showOptions={showOptions}
+            setShowOptionsState={setShowOptionsState}
           />
         </View>
       );

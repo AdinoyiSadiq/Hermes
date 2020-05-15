@@ -5,10 +5,12 @@ import { ifIphoneX } from 'react-native-iphone-x-helper';
 import MessagesListHeader from '../containers/messages/MessagesListHeader';
 import MessageInput from '../containers/messages/MessageInput';
 import MessageList from '../containers/messages/MessageList';
+import MessageOptions from '../containers/messages/MessageOptions';
 import GET_MESSAGES from '../queries/getMessages';
 
 export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
 
   const { navigate, goBack } = navigation;
   const { user, authUserId } = route.params;
@@ -69,25 +71,38 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
     }
   };
 
+  const setShowOptionsState = ({ messageId, reverse }) => {
+    setShowOptions({ state: !showOptions.state, messageId, reverse });
+  };
+
   return (
-    <View style={styles.container}>
-      <MessagesListHeader
-        user={user}
-        authUserId={authUserId}
-        navigateBack={navigateBack}
-        navigateToContactProfile={navigateToContactProfile}
-      />
-      <MessageList
-        authUserId={authUserId}
-        messages={messagesData && messagesData.getMessages}
-        loading={messagesLoading}
-        getMoreMessages={getMoreMessages}
-      />
-      <MessageInput
-        user={user}
-        authUserId={authUserId}
-      />
-    </View>
+    <>
+      <View style={styles.container}>
+        <MessageOptions
+          showOptions={showOptions}
+          setShowOptionsState={setShowOptionsState}
+          fetchMoreMessages={fetchMoreMessages}
+        />
+        <MessagesListHeader
+          user={user}
+          authUserId={authUserId}
+          navigateBack={navigateBack}
+          navigateToContactProfile={navigateToContactProfile}
+        />
+        <MessageList
+          authUserId={authUserId}
+          messages={messagesData && messagesData.getMessages}
+          loading={messagesLoading}
+          showOptions={showOptions}
+          getMoreMessages={getMoreMessages}
+          setShowOptionsState={setShowOptionsState}
+        />
+        <MessageInput
+          user={user}
+          authUserId={authUserId}
+        />
+      </View>
+    </>
   );
 }
 

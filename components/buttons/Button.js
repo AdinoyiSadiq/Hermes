@@ -4,10 +4,12 @@ import Loader from '../loaders/Loader';
 
 import Colors from '../../constants/Colors';
 
-const Button = ({ text, handlePress, loading }) => {
+const Button = ({
+  text, handlePress, loading, size
+}) => {
   return (
     <TouchableOpacity
-      style={styles.authButton}
+      style={[styles.authButton, size === 'full' && { width: '100%' }]}
       onPress={handlePress}
       disabled={loading}
     >
