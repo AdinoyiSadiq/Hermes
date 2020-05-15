@@ -5,10 +5,19 @@ import {
 import Colors from '../../constants/Colors';
 import { timeFormatter } from '../../lib/dateFormatter';
 
-const MessageSent = ({ messageDetails }) => {
+const MessageSent = ({
+  authUserId, messageDetails, setShowOptionsState,
+}) => {
+  const handleSetShowOptions = () => {
+    const showOptionsStateDetails = { messageId: messageDetails.id };
+    setShowOptionsState({ ...showOptionsStateDetails });
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
+      <TouchableOpacity
+        onLongPress={handleSetShowOptions}
+      >
         <View style={styles.messageSentContainer}>
           <Text style={styles.messageText}>
             {messageDetails && messageDetails.text}

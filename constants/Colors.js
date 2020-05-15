@@ -6,6 +6,8 @@ export default {
   colorGreyDark: '#7E8B9A',
   colorGreyLight: '#E4E9EF',
   colorGreyLigth1: 'rgba(161, 161, 159, 0.2)',
+  colorGreyLigth2: '#DDDADA',
   colorBlack: '#0B2443',
+  colorBlack1: 'rgba(0,0,0,0.5)',
   colorRed: '#EA4335',
 };
