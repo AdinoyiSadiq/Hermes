@@ -10,9 +10,14 @@ import Colors from '../../constants/Colors';
 import DELETE_MESSAGE from '../../mutations/deleteMessage';
 import GET_MESSAGES from '../../queries/getMessages';
 
-export default function MessagesOptions({ showOptions, setShowOptionsState, fetchMoreMessages }) {
+export default function MessagesOptions({
+  authUserId, showOptions, setShowOptionsState, fetchMoreMessages, handleMessageToReply
+}) {
   const [deleteMessage] = useMutation(DELETE_MESSAGE);
-  const { messageId } = showOptions;
+  const { message } = showOptions;
+  const messageId = message && message.id;
+
+  const authUserMessage = (message && message.sender && message.sender.id) === authUserId;
 
   const handleDeleteMessage = () => {
     deleteMessage({
@@ -36,6 +41,11 @@ export default function MessagesOptions({ showOptions, setShowOptionsState, fetc
     setShowOptionsState(false);
   };
 
+  const handleReplyMessage = () => {
+    handleMessageToReply(message);
+    setShowOptionsState(false);
+  };
+
   return (
     <Modal
       isVisible={showOptions.state || false}
@@ -49,15 +59,29 @@ export default function MessagesOptions({ showOptions, setShowOptionsState, fetc
           <View style={styles.optionsHandle} />
         </View>
         <View style={styles.optionsDetails}>
+          {
+            authUserMessage && (
+              <TouchableOpacity
+                style={styles.messageOption}
+                onPress={handleDeleteMessage}
+              >
+                <Image
+                  source={require('../../assets/images/delete-button-icon.png')}
+                  style={styles.messageOptionIcon}
+                />
+                <Text style={styles.messageOptionText}>Delete Message</Text>
+              </TouchableOpacity>
+            )
+          }
           <TouchableOpacity
             style={styles.messageOption}
-            onPress={handleDeleteMessage}
+            onPress={handleReplyMessage}
           >
             <Image
-              source={require('../../assets/images/delete-button-icon.png')}
+              source={require('../../assets/images/reply-button-icon.png')}
               style={styles.messageOptionIcon}
             />
-            <Text style={styles.messageOptionText}>Delete Message</Text>
+            <Text style={styles.messageOptionText}>Reply Message</Text>
           </TouchableOpacity>
           <Button
             handlePress={() => setShowOptionsState(false)}
@@ -77,7 +101,8 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     backgroundColor: Colors.colorWhite,
-    borderRadius: 48,
+    borderTopLeftRadius: 48,
+    borderTopRightRadius: 48,
   },
   optionsHandleContainer: {
     justifyContent: 'center',
@@ -109,6 +134,6 @@ const styles = StyleSheet.create({
     color: Colors.colorBlack,
   },
   messageOptionIcon: {
-    marginRight: 10,
+    marginRight: 12
   }
 });

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import {
   StyleSheet, TextInput, Image, View, TouchableOpacity
 } from 'react-native';
+import MessageInputModifier from '../../components/messages/MessageInputModifier';
 import optimisticResponseMessage from '../../lib/optimisticResponse';
 import newActiveUserResponseMessage from '../../lib/newActiveUserResponse';
 import Colors from '../../constants/Colors';
@@ -10,8 +11,18 @@ import CREATE_MESSAGE from '../../mutations/createMessage';
 import GET_ACTIVE_CHATS from '../../queries/getActiveChats';
 import GET_MESSAGES from '../../queries/getMessages';
 
-const MessageInput = ({ user, authUserId }) => {
+const MessageInput = ({
+  user, authUserId, messageToReply, handleMessageToReply
+}) => {
+  const messageInputRef = useRef();
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (messageToReply) {
+      messageInputRef.current.focus();
+    }
+  }, [messageToReply]);
+
   const [createMessage, {
     loading, error, data, client
   }] = useMutation(CREATE_MESSAGE);
@@ -24,12 +35,14 @@ const MessageInput = ({ user, authUserId }) => {
 
   const handleSubmit = () => {
     setMessage('');
+    handleMessageToReply(false);
     if (message && message.trim()) {
       const variables = { text: message.trim(), receiverId: user.id };
+      if (messageToReply) variables.quoteId = messageToReply.id;
       createMessage({
         variables,
         optimisticResponse: {
-          ...(optimisticResponseMessage(authUserId, user, message))
+          ...(optimisticResponseMessage(authUserId, user, message, messageToReply))
         },
         // eslint-disable-next-line no-shadow
         update: (cache, { data: { createMessage } }) => {
@@ -77,36 +90,43 @@ const MessageInput = ({ user, authUserId }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity>
-        <View style={[styles.pickerContainer, styles.imagePickerContainer]}>
-          <Image
-            source={require('../../assets/images/image-picker-icon.png')}
+    <>
+      <MessageInputModifier
+        messageToReply={messageToReply}
+        handleMessageToReply={handleMessageToReply}
+      />
+      <View style={styles.container}>
+        <TouchableOpacity>
+          <View style={[styles.pickerContainer, styles.imagePickerContainer]}>
+            <Image
+              source={require('../../assets/images/image-picker-icon.png')}
+            />
+          </View>
+        </TouchableOpacity>
+        <View style={styles.messageInputContainer}>
+          <TextInput
+            ref={messageInputRef}
+            value={message}
+            onChangeText={(text) => handleChange(text, 'message')}
+            placeholder="Type a message"
           />
         </View>
-      </TouchableOpacity>
-      <View style={styles.messageInputContainer}>
-        <TextInput
-          value={message}
-          onChangeText={(text) => handleChange(text, 'message')}
-          placeholder="Type a message"
-        />
+        <TouchableOpacity>
+          <View style={[styles.pickerContainer, styles.emojiPickerContainer]}>
+            <Image
+              source={require('../../assets/images/emoji-picker-icon.png')}
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSubmit}>
+          <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
+            <Image
+              source={require('../../assets/images/message-send-icon.png')}
+            />
+          </View>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity>
-        <View style={[styles.pickerContainer, styles.emojiPickerContainer]}>
-          <Image
-            source={require('../../assets/images/emoji-picker-icon.png')}
-          />
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSubmit}>
-        <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
-          <Image
-            source={require('../../assets/images/message-send-icon.png')}
-          />
-        </View>
-      </TouchableOpacity>
-    </View>
+    </>
   );
 };
 

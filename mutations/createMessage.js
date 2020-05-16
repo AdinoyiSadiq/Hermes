@@ -28,11 +28,13 @@ export default gql`
       quote {
         id
         text
+        image
         sender {
           id
           firstname
           lastname
         }
+        createdAt
       }
       createdAt
     }

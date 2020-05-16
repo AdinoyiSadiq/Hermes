@@ -11,6 +11,7 @@ import GET_MESSAGES from '../queries/getMessages';
 export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
+  const [messageToReply, setMessageToReply] = useState(false);
 
   const { navigate, goBack } = navigation;
   const { user, authUserId } = route.params;
@@ -71,17 +72,23 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
     }
   };
 
-  const setShowOptionsState = ({ messageId, reverse }) => {
-    setShowOptions({ state: !showOptions.state, messageId, reverse });
+  const setShowOptionsState = ({ message }) => {
+    setShowOptions({ state: !showOptions.state, message });
+  };
+
+  const handleMessageToReply = (message) => {
+    setMessageToReply(message);
   };
 
   return (
     <>
       <View style={styles.container}>
         <MessageOptions
+          authUserId={authUserId}
           showOptions={showOptions}
           setShowOptionsState={setShowOptionsState}
           fetchMoreMessages={fetchMoreMessages}
+          handleMessageToReply={handleMessageToReply}
         />
         <MessagesListHeader
           user={user}
@@ -100,6 +107,8 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
         <MessageInput
           user={user}
           authUserId={authUserId}
+          messageToReply={messageToReply}
+          handleMessageToReply={handleMessageToReply}
         />
       </View>
     </>
