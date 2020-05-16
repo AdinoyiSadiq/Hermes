@@ -9,7 +9,7 @@ const MessageSent = ({
   authUserId, messageDetails, setShowOptionsState,
 }) => {
   const handleSetShowOptions = () => {
-    const showOptionsStateDetails = { messageId: messageDetails.id };
+    const showOptionsStateDetails = { message: messageDetails };
     setShowOptionsState({ ...showOptionsStateDetails });
   };
 
@@ -19,6 +19,20 @@ const MessageSent = ({
         onLongPress={handleSetShowOptions}
       >
         <View style={styles.messageSentContainer}>
+          {
+            (messageDetails.quote.length !== 0) && (
+              <TouchableOpacity style={styles.messageToReply}>
+                <Text style={[styles.messageToReplyText, styles.messageToReplyUser]}>
+                  {(messageDetails.quote[0].sender.id === authUserId)
+                    ? 'You'
+                    : `${messageDetails.quote[0].sender.firstname} ${messageDetails.quote[0].sender.lastname}`}
+                </Text>
+                <Text style={styles.messageToReplyText}>
+                  {messageDetails.quote[0].text}
+                </Text>
+              </TouchableOpacity>
+            )
+          }
           <Text style={styles.messageText}>
             {messageDetails && messageDetails.text}
           </Text>
@@ -77,6 +91,29 @@ const styles = StyleSheet.create({
   },
   messageReadReceipt: {
     marginRight: 3
+  },
+  messageToReply: {
+    backgroundColor: Colors.colorWhite,
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingTop: 8,
+    paddingBottom: 8,
+    marginTop: 4,
+    marginBottom: 4,
+    borderTopLeftRadius: 18,
+    borderBottomLeftRadius: 18,
+    borderWidth: 1,
+    borderRightWidth: 4,
+    borderColor: Colors.colorOrange
+  },
+  messageToReplyUser: {
+    color: Colors.colorOrange,
+  },
+  messageToReplyText: {
+    fontSize: 12,
+    fontFamily: 'Muli',
+    fontWeight: '700',
+    color: Colors.colorBlack,
   }
 });
 

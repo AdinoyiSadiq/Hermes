@@ -49,6 +49,8 @@ const MessageList = ({
         <MessageReceived
           authUserId={authUserId}
           messageDetails={message}
+          showOptions={showOptions}
+          setShowOptionsState={setShowOptionsState}
         />
       </View>
     );
