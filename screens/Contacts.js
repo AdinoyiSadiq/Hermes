@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 
 import UserListWrapper from './userList/UserListWrapper';
 import Messages from './Messages';
 import ContactProfile from './profile/ContactProfile';
 import Colors from '../constants/Colors';
 import Loader from '../components/loaders/Loader';
+import UserContext from '../context/User';
 
 import GET_ALL_CONTACTS from '../queries/getAllContacts';
+import GET_CONTACT_PROFILE from '../queries/getContactProfile';
 
 const Stack = createStackNavigator();
 
@@ -17,9 +19,16 @@ export default function Contacts({ navigation, loading, authUserId }) {
   const {
     loading: contactsLoading, error: contactsError, data: contactsData
   } = useQuery(GET_ALL_CONTACTS);
+  const [getContactProfile,
+    { loading: contactProfileLoading, error: contactProfileError, data: contactProfileData }
+  ] = useLazyQuery(GET_CONTACT_PROFILE);
 
   const setTabBarVisibility = (state) => {
     navigation.setOptions({ tabBarVisible: state });
+  };
+
+  const getActiveUserProfile = (user) => {
+    getContactProfile({ variables: { userId: user.id } });
   };
 
   if (loading || !authUserId) {
@@ -40,12 +49,14 @@ export default function Contacts({ navigation, loading, authUserId }) {
       <Stack.Screen name="contactList">
         {(props) => {
           return (
-            <UserListWrapper
-              type="contact"
-              loading={contactsLoading}
-              data={contactsData && contactsData.getAllContacts}
-              navigation={props.navigation}
-            />
+            <UserContext.Provider value={{ authUserId, getActiveUserProfile }}>
+              <UserListWrapper
+                type="contact"
+                loading={contactsLoading}
+                data={contactsData && contactsData.getAllContacts}
+                navigation={props.navigation}
+              />
+            </UserContext.Provider>
           );
         }}
       </Stack.Screen>
@@ -55,6 +66,7 @@ export default function Contacts({ navigation, loading, authUserId }) {
             <Messages
               setTabBarVisibility={setTabBarVisibility}
               navigation={props.navigation}
+              route={props.route}
             />
           );
         }}
@@ -63,6 +75,8 @@ export default function Contacts({ navigation, loading, authUserId }) {
         {(props) => {
           return (
             <ContactProfile
+              contactProfile={contactProfileData}
+              loading={contactProfileLoading}
               navigation={props.navigation}
             />
           );

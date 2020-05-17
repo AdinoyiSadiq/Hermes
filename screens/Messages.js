@@ -83,13 +83,6 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
   return (
     <>
       <View style={styles.container}>
-        <MessageOptions
-          authUserId={authUserId}
-          showOptions={showOptions}
-          setShowOptionsState={setShowOptionsState}
-          fetchMoreMessages={fetchMoreMessages}
-          handleMessageToReply={handleMessageToReply}
-        />
         <MessagesListHeader
           user={user}
           authUserId={authUserId}
@@ -108,6 +101,13 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
           user={user}
           authUserId={authUserId}
           messageToReply={messageToReply}
+          handleMessageToReply={handleMessageToReply}
+        />
+        <MessageOptions
+          authUserId={authUserId}
+          showOptions={showOptions}
+          setShowOptionsState={setShowOptionsState}
+          fetchMoreMessages={fetchMoreMessages}
           handleMessageToReply={handleMessageToReply}
         />
       </View>
