@@ -1,11 +1,34 @@
-import * as React from 'react';
+import React from 'react';
 import {
-  StyleSheet, View, Text, Image, TouchableOpacity
+  StyleSheet, View, Text, Image, TouchableOpacity, ImageBackground
 } from 'react-native';
 import { ifIphoneX } from 'react-native-iphone-x-helper';
 import Colors from '../../constants/Colors';
+import Loader from '../../components/loaders/Loader';
+import formatText from '../../lib/formatText';
 
-const ContactProfile = ({ navigation }) => {
+
+const ContactProfile = ({
+  contactProfile, loading, navigation
+}) => {
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Loader color="orange" />
+      </View>
+    );
+  }
+
+  const renderProfileText = () => {
+    return (
+      <View style={styles.profileNameContainer}>
+        <Text style={styles.profileNameText}>
+          {`${formatText(contactProfile.getProfile.firstname)} ${formatText(contactProfile.getProfile.lastname)}`}
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeaderContainer}>
@@ -19,25 +42,39 @@ const ContactProfile = ({ navigation }) => {
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.profileImageContainer}>
-          <View style={styles.profileImageTextContainer}>
-            <Text style={styles.profileImageText}>PB</Text>
-          </View>
-          <View style={styles.profileNameContainer}>
-            <Text style={styles.profileNameText}>Priscilla Black</Text>
-          </View>
-        </View>
+        {
+          contactProfile.getProfile.profileImage ? (
+            <ImageBackground
+              style={styles.profileImageContainer}
+              source={{ uri: contactProfile.getProfile.profileImage }}
+            >
+              <View style={styles.profileImageTextContainer} />
+              {renderProfileText()}
+            </ImageBackground>
+          ) : (
+            <View style={styles.profileImageContainer} source={require('../../assets/images/back-button-white-icon.png')}>
+              <View style={styles.profileImageTextContainer}>
+                <Text style={styles.profileImageText}>
+                  {`${contactProfile.getProfile.firstname.charAt(0).toUpperCase()}${contactProfile.getProfile.lastname.charAt(0).toUpperCase()}`}
+                </Text>
+              </View>
+              {renderProfileText()}
+            </View>
+          )
+        }
         <View>
           <View style={styles.profileDetails}>
-            <Text style={styles.profileDetailValue}>@priscillablack</Text>
+            <Text style={styles.profileDetailValue}>{`@${contactProfile.getProfile.username}`}</Text>
             <Text style={styles.profileDetailLabel}>Username</Text>
           </View>
           <View style={styles.profileDetails}>
-            <Text style={styles.profileDetailValue}>priscillablack@gmail.com</Text>
+            <Text style={styles.profileDetailValue}>{contactProfile.getProfile.email}</Text>
             <Text style={styles.profileDetailLabel}>Email Address</Text>
           </View>
           <View style={styles.profileDetails}>
-            <Text style={styles.profileDetailValue}>Kaduna</Text>
+            <Text style={styles.profileDetailValue}>
+              {formatText(contactProfile.getProfile.location)}
+            </Text>
             <Text style={styles.profileDetailLabel}>Location</Text>
           </View>
         </View>
@@ -118,7 +155,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.colorGreyLigth1,
     borderColor: Colors.colorGreyDark,
     borderWidth: 0.1,
-  }
+  },
+  loaderContainer: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: Colors.colorWhite,
+    justifyContent: 'center',
+  },
 });
 
 export default ContactProfile;

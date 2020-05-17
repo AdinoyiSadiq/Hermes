@@ -6,7 +6,7 @@ import UserImage from '../../components/profile/UserImage';
 import formatText from '../../lib/formatText';
 import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
-import AuthUserContext from '../../context/AuthUser';
+import UserContext from '../../context/User';
 
 // Note: ensure that it can handle long names and messages
 const UserItem = ({
@@ -17,13 +17,14 @@ const UserItem = ({
   navigation
 }) => {
   return (
-    <AuthUserContext.Consumer>
-      {({ authUserId }) => (
+    <UserContext.Consumer>
+      {({ authUserId, getActiveUserProfile }) => (
         <TouchableWithoutFeedback onPress={() => {
           navigation.navigate('messages', {
             user: { ...user, profileImage },
             authUserId,
           });
+          getActiveUserProfile(user);
         }}
         >
           <View style={styles.userItemContainer}>
@@ -62,7 +63,7 @@ const UserItem = ({
           </View>
         </TouchableWithoutFeedback>
       )}
-    </AuthUserContext.Consumer>
+    </UserContext.Consumer>
   );
 };
 
