@@ -1,11 +1,15 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import {
   StyleSheet, Text, Image, View, TouchableOpacity
 } from 'react-native';
 import Colors from '../../constants/Colors';
 
-const MessageInputModifier = ({ messageToReply, handleMessageToReply }) => {
+const MessageInputModifier = ({
+  messageToReply, handleMessageToReply, image, clearImage
+}) => {
   const resetInputModifier = () => {
+    clearImage();
     handleMessageToReply(false);
   };
 
@@ -27,7 +31,19 @@ const MessageInputModifier = ({ messageToReply, handleMessageToReply }) => {
             <Text style={styles.messageReplyText}>{(messageToReply.text) && `${(messageToReply.text).slice(0, 22)}...`}</Text>
           </View>
           <TouchableOpacity
-            style={styles.messageReplyCloseContainer}
+            style={styles.messageModifierCloseContainer}
+            onPress={resetInputModifier}
+          >
+            <Image source={require('../../assets/images/close-button-icon.png')} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    ) : image ? (
+      <View style={styles.container}>
+        <View style={styles.messageReplyContainer}>
+          <Image style={styles.imagePreview} source={{ uri: image }} />
+          <TouchableOpacity
+            style={styles.messageModifierCloseContainer}
             onPress={resetInputModifier}
           >
             <Image source={require('../../assets/images/close-button-icon.png')} />
@@ -69,12 +85,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Muli',
     color: Colors.colorGreyDark
   },
-  messageReplyCloseContainer: {
+  messageModifierCloseContainer: {
     height: 28,
     width: 28,
     borderRadius: 60,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.colorOrangeLight1,
+  },
+  imagePreview: {
+    height: 50,
+    width: 50,
+    borderRadius: 5,
   },
 });

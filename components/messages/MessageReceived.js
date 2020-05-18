@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  StyleSheet, Text, View, TouchableOpacity
+  StyleSheet, Image, Text, View, TouchableOpacity
 } from 'react-native';
 import Colors from '../../constants/Colors';
 import { timeFormatter } from '../../lib/dateFormatter';
@@ -13,30 +13,42 @@ const MessageReceived = ({
     setShowOptionsState({ ...showOptionsStateDetails });
   };
 
+  const renderMessageText = () => {
+    if (messageDetails && ((messageDetails.image && messageDetails.text) || messageDetails.text)) {
+      return (
+        <View style={styles.messageReceivedContainer}>
+          {
+            (messageDetails.quote.length !== 0) && (
+              <TouchableOpacity style={styles.messageToReply}>
+                <Text style={[styles.messageToReplyText, styles.messageToReplyUser]}>
+                  {(messageDetails.quote[0].sender.id === authUserId)
+                    ? 'You'
+                    : `${messageDetails.quote[0].sender.firstname} ${messageDetails.quote[0].sender.lastname}`}
+                </Text>
+                <Text style={styles.messageToReplyText}>
+                  {messageDetails.quote[0].text}
+                </Text>
+              </TouchableOpacity>
+            )
+          }
+          <Text style={styles.messageText}>
+            {messageDetails && messageDetails.text}
+          </Text>
+        </View>
+      );
+    }
+    return <View />;
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onLongPress={handleSetShowOptions}
       >
-        <View style={styles.messageReceivedContainer}>
-          {
-              (messageDetails.quote.length !== 0) && (
-                <TouchableOpacity style={styles.messageToReply}>
-                  <Text style={[styles.messageToReplyText, styles.messageToReplyUser]}>
-                    {(messageDetails.quote[0].sender.id === authUserId)
-                      ? 'You'
-                      : `${messageDetails.quote[0].sender.firstname} ${messageDetails.quote[0].sender.lastname}`}
-                  </Text>
-                  <Text style={styles.messageToReplyText}>
-                    {messageDetails.quote[0].text}
-                  </Text>
-                </TouchableOpacity>
-              )
-            }
-          <Text style={styles.messageText}>
-            {messageDetails && messageDetails.text}
-          </Text>
-        </View>
+        {messageDetails.image && (
+          <Image style={styles.messageImage} source={{ uri: messageDetails.image }} />
+        )}
+        { renderMessageText() }
       </TouchableOpacity>
 
       <View style={styles.messageDetailsContainer}>
@@ -104,7 +116,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Muli',
     fontWeight: '700',
     color: Colors.colorBlack,
-  }
+  },
+  messageImage: {
+    height: 140,
+    width: 140,
+    borderRadius: 18,
+    borderBottomLeftRadius: 3,
+    marginBottom: 5,
+  },
 });
 
 export default MessageReceived;

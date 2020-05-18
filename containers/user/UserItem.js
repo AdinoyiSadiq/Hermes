@@ -8,7 +8,6 @@ import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
 import UserContext from '../../context/User';
 
-// Note: ensure that it can handle long names and messages
 const UserItem = ({
   item: {
     user, status, actionUserId, contact, profileImage, lastMessage, unreadMessages

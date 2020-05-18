@@ -13,11 +13,9 @@ const MessageSent = ({
     setShowOptionsState({ ...showOptionsStateDetails });
   };
 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        onLongPress={handleSetShowOptions}
-      >
+  const renderMessageText = () => {
+    if (messageDetails && ((messageDetails.image && messageDetails.text) || messageDetails.text)) {
+      return (
         <View style={styles.messageSentContainer}>
           {
             (messageDetails.quote.length !== 0) && (
@@ -37,6 +35,23 @@ const MessageSent = ({
             {messageDetails && messageDetails.text}
           </Text>
         </View>
+      );
+    }
+    return <View />;
+  };
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.touchContainer}
+        onLongPress={handleSetShowOptions}
+      >
+        {messageDetails.image && (
+          <Image style={styles.messageImage} source={{ uri: messageDetails.image }} />
+        )}
+        {
+          renderMessageText()
+        }
       </TouchableOpacity>
       <View style={styles.messageDetailsContainer}>
         <Text style={styles.messageSentTime}>
@@ -56,6 +71,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginRight: 1,
     paddingTop: 16
+  },
+  touchContainer: {
+    alignItems: 'flex-end'
   },
   messageSentContainer: {
     width: '65%',
@@ -114,7 +132,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Muli',
     fontWeight: '700',
     color: Colors.colorBlack,
-  }
+  },
+  messageImage: {
+    height: 140,
+    width: 140,
+    borderRadius: 18,
+    borderBottomRightRadius: 3,
+    marginBottom: 5,
+  },
 });
 
 export default MessageSent;
