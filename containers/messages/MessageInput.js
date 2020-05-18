@@ -10,18 +10,38 @@ import Colors from '../../constants/Colors';
 import CREATE_MESSAGE from '../../mutations/createMessage';
 import GET_ACTIVE_CHATS from '../../queries/getActiveChats';
 import GET_MESSAGES from '../../queries/getMessages';
+import selectImage from '../../lib/selectImage';
 
 const MessageInput = ({
-  user, authUserId, messageToReply, handleMessageToReply
+  user, authUserId, messageToReply, handleMessageToReply, sendImage
 }) => {
   const messageInputRef = useRef();
+  const messageInputCaptionRef = useRef();
   const [message, setMessage] = useState('');
+  const [caption, setCaption] = useState('');
+  const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    clearImage();
+    setMessage('');
+    handleMessageToReply('');
+  }, [user]);
 
   useEffect(() => {
     if (messageToReply) {
-      messageInputRef.current.focus();
+      if (image) {
+        clearImage();
+      } else {
+        messageInputRef.current.focus();
+      }
     }
   }, [messageToReply]);
+
+  useEffect(() => {
+    if (image) {
+      messageInputCaptionRef.current.focus();
+    }
+  }, [image]);
 
   const [createMessage, {
     loading, error, data, client
@@ -30,13 +50,29 @@ const MessageInput = ({
   const handleChange = (text, type) => {
     if (type === 'message') {
       setMessage(text);
+    } else if (type === 'caption') {
+      setCaption(text);
     }
+  };
+
+  const pickImage = () => {
+    selectImage(setImage, () => {});
+    handleMessageToReply(false);
+  };
+
+  const clearImage = () => {
+    setImage(null);
+    setCaption('');
   };
 
   const handleSubmit = () => {
     setMessage('');
     handleMessageToReply(false);
-    if (message && message.trim()) {
+    if (image) {
+      const variables = { text: caption, receiverId: user.id };
+      sendImage({ variables, imageFile: image, receiver: user });
+      clearImage();
+    } else if (message && message.trim()) {
       const variables = { text: message.trim(), receiverId: user.id };
       if (messageToReply) variables.quoteId = messageToReply.id;
       createMessage({
@@ -94,38 +130,62 @@ const MessageInput = ({
       <MessageInputModifier
         messageToReply={messageToReply}
         handleMessageToReply={handleMessageToReply}
+        image={image}
+        clearImage={clearImage}
       />
-      <View style={styles.container}>
-        <TouchableOpacity>
-          <View style={[styles.pickerContainer, styles.imagePickerContainer]}>
-            <Image
-              source={require('../../assets/images/image-picker-icon.png')}
-            />
+      {
+        image ? (
+          <View style={styles.container}>
+            <View style={styles.messageInputCaptionContainer}>
+              <TextInput
+                ref={messageInputCaptionRef}
+                value={caption}
+                onChangeText={(text) => handleChange(text, 'caption')}
+                placeholder="Add a caption"
+              />
+            </View>
+            <TouchableOpacity onPress={handleSubmit}>
+              <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
+                <Image
+                  source={require('../../assets/images/message-send-icon.png')}
+                />
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-        <View style={styles.messageInputContainer}>
-          <TextInput
-            ref={messageInputRef}
-            value={message}
-            onChangeText={(text) => handleChange(text, 'message')}
-            placeholder="Type a message"
-          />
-        </View>
-        <TouchableOpacity>
-          <View style={[styles.pickerContainer, styles.emojiPickerContainer]}>
-            <Image
-              source={require('../../assets/images/emoji-picker-icon.png')}
-            />
+        ) : (
+          <View style={styles.container}>
+            <TouchableOpacity onPress={pickImage}>
+              <View style={[styles.pickerContainer, styles.imagePickerContainer]}>
+                <Image
+                  source={require('../../assets/images/image-picker-icon.png')}
+                />
+              </View>
+            </TouchableOpacity>
+            <View style={styles.messageInputContainer}>
+              <TextInput
+                ref={messageInputRef}
+                value={message}
+                onChangeText={(text) => handleChange(text, 'message')}
+                placeholder="Type a message"
+              />
+            </View>
+            <TouchableOpacity>
+              <View style={[styles.pickerContainer, styles.emojiPickerContainer]}>
+                <Image
+                  source={require('../../assets/images/emoji-picker-icon.png')}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSubmit}>
+              <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
+                <Image
+                  source={require('../../assets/images/message-send-icon.png')}
+                />
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleSubmit}>
-          <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
-            <Image
-              source={require('../../assets/images/message-send-icon.png')}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
+        )
+      }
     </>
   );
 };
@@ -144,6 +204,10 @@ const styles = StyleSheet.create({
   },
   messageInputContainer: {
     width: '62.5%',
+  },
+  messageInputCaptionContainer: {
+    flex: 1,
+    paddingLeft: 10
   },
   pickerContainer: {
     height: 32,

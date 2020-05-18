@@ -7,6 +7,7 @@ import MessageInput from '../containers/messages/MessageInput';
 import MessageList from '../containers/messages/MessageList';
 import MessageOptions from '../containers/messages/MessageOptions';
 import GET_MESSAGES from '../queries/getMessages';
+import ImageUploadContext from '../context/ImageUpload';
 
 export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
@@ -83,12 +84,17 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
   return (
     <>
       <View style={styles.container}>
-        <MessagesListHeader
-          user={user}
-          authUserId={authUserId}
-          navigateBack={navigateBack}
-          navigateToContactProfile={navigateToContactProfile}
-        />
+        <ImageUploadContext.Consumer>
+          {({ uploadingImage }) => (
+            <MessagesListHeader
+              user={user}
+              authUserId={authUserId}
+              navigateBack={navigateBack}
+              navigateToContactProfile={navigateToContactProfile}
+              uploadingImage={uploadingImage}
+            />
+          )}
+        </ImageUploadContext.Consumer>
         <MessageList
           authUserId={authUserId}
           messages={messagesData && messagesData.getMessages}
@@ -97,12 +103,17 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
           getMoreMessages={getMoreMessages}
           setShowOptionsState={setShowOptionsState}
         />
-        <MessageInput
-          user={user}
-          authUserId={authUserId}
-          messageToReply={messageToReply}
-          handleMessageToReply={handleMessageToReply}
-        />
+        <ImageUploadContext.Consumer>
+          {({ sendImage }) => (
+            <MessageInput
+              user={user}
+              authUserId={authUserId}
+              messageToReply={messageToReply}
+              handleMessageToReply={handleMessageToReply}
+              sendImage={sendImage}
+            />
+          )}
+        </ImageUploadContext.Consumer>
         <MessageOptions
           authUserId={authUserId}
           showOptions={showOptions}

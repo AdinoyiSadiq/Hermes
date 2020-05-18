@@ -1,11 +1,8 @@
 /* eslint-disable consistent-return */
 import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet, Text, Image, View, Alert, TouchableOpacity
+  StyleSheet, Text, Image, View, TouchableOpacity
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-import Constants from 'expo-constants';
 import { useMutation } from '@apollo/react-hooks';
 import Button from '../buttons/Button';
 import ProfileInput from '../forms/ProfileInput';
@@ -14,6 +11,7 @@ import Colors from '../../constants/Colors';
 import formatText from '../../lib/formatText';
 import validateAuth from '../../lib/validation';
 import imageUploader from '../../lib/imageUploader';
+import selectImage from '../../lib/selectImage';
 
 const fieldNames = ['firstname', 'lastname', 'username', 'location', 'email'];
 
@@ -68,34 +66,8 @@ export default function ProfileForm({
     return validationError;
   };
 
-  const getPermissionAsync = async () => {
-    let status;
-    if (Constants.platform.ios) {
-      const res = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      status = res.status;
-    }
-    return status;
-  };
-
-  const pickImage = async () => {
-    try {
-      const status = await getPermissionAsync();
-      if (status === 'granted') {
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        });
-        if (!result.cancelled) {
-          setImage(result.uri);
-        }
-      } else {
-        Alert.alert('Sorry, we need camera roll permissions to make this work. Please change camera settings for Hermes.');
-      }
-    } catch (e) {
-      setApiError({ message: 'An error occurred while selecting an image' });
-    }
+  const pickImage = () => {
+    selectImage(setImage, setApiError);
   };
 
   const uploadImage = async () => {
