@@ -15,7 +15,13 @@ import SEARCH_CONTACTS from '../../queries/searchContacts';
 import SEARCH_USERS from '../../queries/searchUsers';
 
 export default function UserListWrapper({
-  type, navigation, loading, data,
+  type,
+  navigation,
+  loading,
+  data,
+  contactSentRequestData,
+  contactReceivedRequestData,
+  contactRejectedRequestData
 }) {
   const [searchState, setSearchState] = useState(false);
   const [searchContacts, {
@@ -44,6 +50,18 @@ export default function UserListWrapper({
     return filteredUsers;
   };
 
+  const getRestrictedContacts = () => {
+    let restrictedContacts = [];
+    if (contactSentRequestData && contactReceivedRequestData && contactRejectedRequestData) {
+      restrictedContacts = [
+        ...contactSentRequestData,
+        ...contactReceivedRequestData,
+        ...contactRejectedRequestData
+      ];
+    }
+    return restrictedContacts;
+  };
+
   return (
     <View style={styles.container}>
       <UserListHeader
@@ -65,7 +83,10 @@ export default function UserListWrapper({
             <UserList
               type={searchState ? 'search' : type}
               view={type}
-              data={(searchState && searchData && searchData.searchContacts) || data}
+              data={
+                (searchState && searchData && searchData.searchContacts)
+                || [...data, ...(getRestrictedContacts())]
+              }
               users={
               searchState
               && searchUserData

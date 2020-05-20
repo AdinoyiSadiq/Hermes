@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Loader from '../loaders/Loader';
@@ -9,7 +10,12 @@ const Button = ({
 }) => {
   return (
     <TouchableOpacity
-      style={[styles.authButton, size === 'full' && { width: '100%' }]}
+      style={[
+        styles.authButton,
+        size === 'full' ? { width: '100%' }
+          : size === 'flex' ? { flex: 1, marginLeft: '2%', marginRight: '2%' }
+            : {}
+      ]}
       onPress={handlePress}
       disabled={loading}
     >

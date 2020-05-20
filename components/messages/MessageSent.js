@@ -40,18 +40,24 @@ const MessageSent = ({
     return <View />;
   };
 
+  const renderMessageImage = () => {
+    if (messageDetails.image) {
+      return (
+        <Image style={styles.messageImage} source={{ uri: messageDetails.image }} />
+      );
+    }
+
+    return <View />;
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.touchContainer}
         onLongPress={handleSetShowOptions}
       >
-        {messageDetails.image && (
-          <Image style={styles.messageImage} source={{ uri: messageDetails.image }} />
-        )}
-        {
-          renderMessageText()
-        }
+        { renderMessageImage() }
+        { renderMessageText() }
       </TouchableOpacity>
       <View style={styles.messageDetailsContainer}>
         <Text style={styles.messageSentTime}>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-  StyleSheet, Text, View, TouchableWithoutFeedback
+  StyleSheet, Image, Text, View, TouchableWithoutFeedback
 } from 'react-native';
 import UserImage from '../../components/profile/UserImage';
 import formatText from '../../lib/formatText';
@@ -13,14 +13,17 @@ const UserItem = ({
     user, status, actionUserId, contact, profileImage, lastMessage, unreadMessages
   },
   type,
-  navigation
+  navigation,
+  active
 }) => {
   return (
     <UserContext.Consumer>
       {({ authUserId, getActiveUserProfile }) => (
         <TouchableWithoutFeedback onPress={() => {
           navigation.navigate('messages', {
-            user: { ...user, profileImage },
+            user: {
+              ...user, profileImage, status, actionUserId, contact, active
+            },
             authUserId,
           });
           getActiveUserProfile(user);
@@ -39,9 +42,17 @@ const UserItem = ({
                   ) : <View />}
                 </View>
                 <View style={styles.userDetails}>
-                  <Text style={styles.messageText}>
-                    {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
-                  </Text>
+                  <View style={styles.messgaeDetails}>
+                    <View style={styles.cameraIconContainer}>
+                      <Image
+                        style={styles.cameraIcon}
+                        source={require('../../assets/images/camera-icon.png')}
+                      />
+                    </View>
+                    <Text style={styles.messageText}>
+                      {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
+                    </Text>
+                  </View>
                   <Text style={styles.messageTime}>
                     {dateFormatter(lastMessage.createdAt)}
                   </Text>
@@ -119,6 +130,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Muli',
     color: Colors.colorBlack,
     alignSelf: 'flex-end'
+  },
+  cameraIconContainer: {
+    marginRight: 6,
+  },
+  cameraIcon: {
+    height: 15,
+    width: 15,
+  },
+  messgaeDetails: {
+    flexDirection: 'row'
   }
 });
 
