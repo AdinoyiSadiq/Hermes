@@ -17,6 +17,7 @@ export default function UserList({
                   item={item}
                   type={type}
                   navigation={navigation}
+                  active
                 />
               );
             })

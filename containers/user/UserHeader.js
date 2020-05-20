@@ -33,6 +33,17 @@ const UserHeader = ({ title, search, setSearchState }) => {
     setInputActive(false);
   };
 
+  const renderCancelButton = () => {
+    if (searchTerm) {
+      return (
+        <Image
+          source={require('../../assets/images/cancel-icon.png')}
+        />
+      );
+    }
+    return <View />;
+  };
+
   if (inputActive) {
     return (
       <View style={[styles.headerContainer, styles.marginBottom]}>
@@ -46,9 +57,7 @@ const UserHeader = ({ title, search, setSearchState }) => {
           <TouchableOpacity
             onPress={() => clearInput()}
           >
-            <Image
-              source={require('../../assets/images/cancel-icon.png')}
-            />
+            { renderCancelButton() }
           </TouchableOpacity>
         </View>
         <TouchableOpacity

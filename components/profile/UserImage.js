@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import {
   StyleSheet, Text, Image, View
@@ -13,8 +14,16 @@ const UserImage = ({ user, size }) => {
       />
     </View>
   ) : (
-    <View style={[styles.userImagePlaceholder, (size === 'small' ? styles.userImagePlaceholderSmall : styles.userImagePlaceholderMedium)]}>
-      <Text style={[styles.userImagePlaceholderText, (size === 'small' ? styles.userImagePlaceholderTextSmall : styles.userImagePlaceholderTextMedium)]}>
+    <View style={[styles.userImagePlaceholder, (
+      size === 'small' ? styles.userImagePlaceholderSmall
+        : size === 'large' ? styles.userImagePlaceholderLarge
+          : styles.userImagePlaceholderMedium)]}
+    >
+      <Text style={[styles.userImagePlaceholderText, (
+        size === 'small' ? styles.userImagePlaceholderTextSmall
+          : size === 'large' ? styles.userImagePlaceholderTextLarge
+            : styles.userImagePlaceholderTextMedium)]}
+      >
         {`${user.firstname && user.firstname.charAt(0).toUpperCase()}${user.lastname && user.lastname.charAt(0).toUpperCase()}`}
       </Text>
     </View>
@@ -49,18 +58,17 @@ const styles = StyleSheet.create({
     height: 60,
     width: 60,
     borderRadius: 300,
-    backgroundColor: Colors.colorOrangeLight1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   userImagePlaceholderSmall: {
     height: 32,
     width: 32,
     borderRadius: 50,
     marginRight: 16,
-    backgroundColor: Colors.colorOrangeLight1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  userImagePlaceholderLarge: {
+    height: 150,
+    width: 150,
+    borderRadius: 500,
   },
   userImagePlaceholderText: {
     fontFamily: 'Muli',
@@ -73,5 +81,8 @@ const styles = StyleSheet.create({
   },
   userImagePlaceholderTextMedium: {
     fontSize: 15,
+  },
+  userImagePlaceholderTextLarge: {
+    fontSize: 40,
   },
 });
