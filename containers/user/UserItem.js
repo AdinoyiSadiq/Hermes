@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet, Image, Text, View, TouchableWithoutFeedback
 } from 'react-native';
@@ -6,7 +6,6 @@ import UserImage from '../../components/profile/UserImage';
 import formatText from '../../lib/formatText';
 import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
-import UserContext from '../../context/User';
 
 const UserItem = ({
   item: {
@@ -14,66 +13,73 @@ const UserItem = ({
   },
   type,
   navigation,
+  subscribeToNewMessages,
+  authUserId,
+  getActiveUserProfile,
   active
 }) => {
+  useEffect(() => {
+    if (subscribeToNewMessages) {
+      subscribeToNewMessages({ senderId: user.id, receiverId: authUserId });
+    }
+  }, []);
+
   return (
-    <UserContext.Consumer>
-      {({ authUserId, getActiveUserProfile }) => (
-        <TouchableWithoutFeedback onPress={() => {
-          navigation.navigate('messages', {
-            user: {
-              ...user, profileImage, status, actionUserId, contact, active
-            },
-            authUserId,
-          });
-          getActiveUserProfile(user);
-        }}
-        >
-          <View style={styles.userItemContainer}>
-            <UserImage user={{ ...user, profileImage }} />
-            { (type === 'chat') ? (
-              <View style={styles.userDetailsContainer}>
-                <View style={[styles.userDetails, styles.userName]}>
-                  <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
-                  {unreadMessages ? (
-                    <View style={styles.messageNumberContainer}>
-                      <Text style={styles.messageNumber}>{`${unreadMessages}`}</Text>
-                    </View>
-                  ) : <View />}
+    <TouchableWithoutFeedback onPress={() => {
+      navigation.navigate('messages', {
+        user: {
+          ...user, profileImage, status, actionUserId, contact, active
+        },
+        authUserId,
+      });
+      getActiveUserProfile(user);
+    }}
+    >
+      <View style={styles.userItemContainer}>
+        <UserImage user={{ ...user, profileImage }} />
+        { (type === 'chat') ? (
+          <View style={styles.userDetailsContainer}>
+            <View style={[styles.userDetails, styles.userName]}>
+              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
+              {unreadMessages ? (
+                <View style={styles.messageNumberContainer}>
+                  <Text style={styles.messageNumber}>{`${unreadMessages}`}</Text>
                 </View>
-                <View style={styles.userDetails}>
-                  <View style={styles.messgaeDetails}>
-                    <View style={styles.cameraIconContainer}>
-                      <Image
-                        style={styles.cameraIcon}
-                        source={require('../../assets/images/camera-icon.png')}
-                      />
-                    </View>
-                    <Text style={styles.messageText}>
-                      {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
-                    </Text>
-                  </View>
-                  <Text style={styles.messageTime}>
-                    {dateFormatter(lastMessage.createdAt)}
-                  </Text>
+              ) : <View />}
+            </View>
+            <View style={styles.userDetails}>
+              <View style={styles.messgaeDetails}>
+                {lastMessage && lastMessage.image && (
+                <View style={styles.cameraIconContainer}>
+                  <Image
+                    style={styles.cameraIcon}
+                    source={require('../../assets/images/camera-icon.png')}
+                  />
                 </View>
+                )}
+                <Text style={styles.messageText}>
+                  {(lastMessage && lastMessage.text) && `${(lastMessage.text).slice(0, 22)}${(lastMessage.text.length > 22) ? '...' : ''}`}
+                </Text>
               </View>
-            ) : (
-              <View style={styles.userDetailsContainer}>
-                <View style={[styles.userDetails, styles.userName]}>
-                  <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
-                </View>
-                <View style={styles.userDetails}>
-                  <Text style={[styles.messageText, styles.contactDetailsText]}>
-                    {`Last seen: ${dateFormatter(user.lastseen)}`}
-                  </Text>
-                </View>
-              </View>
-            )}
+              <Text style={styles.messageTime}>
+                {dateFormatter(lastMessage.createdAt)}
+              </Text>
+            </View>
           </View>
-        </TouchableWithoutFeedback>
-      )}
-    </UserContext.Consumer>
+        ) : (
+          <View style={styles.userDetailsContainer}>
+            <View style={[styles.userDetails, styles.userName]}>
+              <Text style={styles.userNameText}>{`${formatText(user.firstname)} ${formatText(user.lastname)}`}</Text>
+            </View>
+            <View style={styles.userDetails}>
+              <Text style={[styles.messageText, styles.contactDetailsText]}>
+                {`Last seen: ${dateFormatter(user.lastseen)}`}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import {
   StyleSheet, Image, Text, View, TouchableOpacity
@@ -64,8 +65,14 @@ const MessageSent = ({
           {messageDetails && timeFormatter(messageDetails.createdAt)}
         </Text>
         <View style={styles.messageReadReceiptsContainer}>
-          <Image style={styles.messageReadReceipt} source={require('../../assets/images/read-receipt-orange-icon.png')} />
-          <Image source={require('../../assets/images/read-receipt-orange-icon.png')} />
+          {(messageDetails.state && messageDetails.state === 'sent') ? (
+            <Image source={require('../../assets/images/read-receipt-grey-icon.png')} />
+          ) : (messageDetails.state && messageDetails.state === 'delivered') ? (
+            <>
+              <Image style={styles.messageReadReceipt} source={require('../../assets/images/read-receipt-orange-icon.png')} />
+              <Image source={require('../../assets/images/read-receipt-orange-icon.png')} />
+            </>
+          ) : <View />}
         </View>
       </View>
     </View>

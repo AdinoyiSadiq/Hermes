@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState } from 'react';
-import { useLazyQuery } from '@apollo/react-hooks';
+import React, { useEffect, useState, useRef } from 'react';
+import { useQuery } from '@apollo/react-hooks';
 import { StyleSheet, View } from 'react-native';
 import { ifIphoneX } from 'react-native-iphone-x-helper';
 import MessagesListHeader from '../containers/messages/MessagesListHeader';
@@ -8,8 +8,13 @@ import RestrictedContact from '../containers/messages/RestrictedContact';
 import MessageInput from '../containers/messages/MessageInput';
 import MessageList from '../containers/messages/MessageList';
 import MessageOptions from '../containers/messages/MessageOptions';
-import GET_MESSAGES from '../queries/getMessages';
 import ImageUploadContext from '../context/ImageUpload';
+
+import GET_MESSAGES from '../queries/getMessages';
+import GET_ACTIVE_CHATS from '../queries/getActiveChats';
+
+import MESSAGE_SUBSCRIPTION from '../subscriptions/messageSubscription';
+import UPDATED_MESSAGE_SUBSCRIPTION from '../subscriptions/updatedMessageSubscription';
 
 export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
@@ -17,22 +22,42 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [messageToReply, setMessageToReply] = useState(false);
   const [updatedUser, setUpdatedUser] = useState(false);
 
+  const prevMessageSub = useRef();
+  const prevUpdateMessageSub = useRef();
+
   const { navigate, goBack } = navigation;
   const { user, authUserId } = route.params;
 
-  const [getMessages, {
+  const {
     loading: messagesLoading,
     error: messagesError,
     data: messagesData,
-    fetchMore
-  }] = useLazyQuery(GET_MESSAGES, {
+    fetchMore,
+    subscribeToMore,
+    client
+  } = useQuery(GET_MESSAGES, {
     variables: { receiverId: user.id },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only'
   });
 
   useEffect(() => {
-    getMessages();
+    const activeUsers = client.readQuery({ query: GET_ACTIVE_CHATS });
+    const existingActiveUser = activeUsers
+                                && activeUsers.getActiveUsers
+                                && (activeUsers.getActiveUsers)
+                                  .find((activeUser) => activeUser.user.id === user.id);
+    if (existingActiveUser) {
+      const updatedActiveUsersList = (activeUsers.getActiveUsers).map((activeUser) => {
+        const updatedActiveUser = activeUser;
+        if (activeUser.user.id === user.id) { updatedActiveUser.unreadMessages = 0; }
+        return updatedActiveUser;
+      });
+      client.writeQuery({
+        query: GET_ACTIVE_CHATS,
+        data: { getActiveUsers: [...updatedActiveUsersList] }
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -49,6 +74,40 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
 
   const navigateToContactProfile = () => {
     navigate('contactProfile');
+  };
+
+  const subscribeToNewMessages = () => {
+    if (prevMessageSub.current) {
+      prevMessageSub.current();
+    }
+    prevMessageSub.current = subscribeToMore({
+      document: MESSAGE_SUBSCRIPTION,
+      variables: {
+        senderId: user.id,
+        receiverId: authUserId
+      },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        const { message } = subscriptionData.data;
+        return {
+          ...prev,
+          getMessages: [message, ...prev.getMessages]
+        };
+      }
+    });
+  };
+
+  const subscribeToUpdatedMessages = () => {
+    if (prevUpdateMessageSub.current) {
+      prevUpdateMessageSub.current();
+    }
+    prevUpdateMessageSub.current = subscribeToMore({
+      document: UPDATED_MESSAGE_SUBSCRIPTION,
+      variables: {
+        senderId: authUserId,
+        receiverId: user.id
+      },
+    });
   };
 
   const fetchMoreMessages = (limit) => {
@@ -116,6 +175,8 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
               showOptions={showOptions}
               getMoreMessages={getMoreMessages}
               setShowOptionsState={setShowOptionsState}
+              subscribeToNewMessages={subscribeToNewMessages}
+              subscribeToUpdatedMessages={subscribeToUpdatedMessages}
             />
             <ImageUploadContext.Consumer>
               {({ sendImage }) => (

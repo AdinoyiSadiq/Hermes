@@ -1,3 +1,4 @@
+/* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable global-require */
 import React, { useState } from 'react';
@@ -13,6 +14,7 @@ import Colors from '../../constants/Colors';
 
 import SEARCH_CONTACTS from '../../queries/searchContacts';
 import SEARCH_USERS from '../../queries/searchUsers';
+import MESSAGE_SUBSCRIPTION from '../../subscriptions/messageSubscription';
 
 export default function UserListWrapper({
   type,
@@ -21,7 +23,9 @@ export default function UserListWrapper({
   data,
   contactSentRequestData,
   contactReceivedRequestData,
-  contactRejectedRequestData
+  contactRejectedRequestData,
+  subscribeToMoreActiveChats,
+  refetchActiveChats
 }) {
   const [searchState, setSearchState] = useState(false);
   const [searchContacts, {
@@ -88,12 +92,20 @@ export default function UserListWrapper({
                 || [...data, ...(getRestrictedContacts())]
               }
               users={
-              searchState
-              && searchUserData
-              && searchUserData.searchUsers
-              && filterUsers(searchData.searchContacts, searchUserData.searchUsers)
-            }
+                searchState
+                && searchUserData
+                && searchUserData.searchUsers
+                && filterUsers(searchData.searchContacts, searchUserData.searchUsers)
+              }
               navigation={navigation}
+              subscribeToNewMessages={({ senderId, receiverId }) =>
+                subscribeToMoreActiveChats({
+                  document: MESSAGE_SUBSCRIPTION,
+                  variables: { senderId, receiverId },
+                  updateQuery: () => {
+                    refetchActiveChats();
+                  }
+                })}
             />
           </ScrollView>
         )}

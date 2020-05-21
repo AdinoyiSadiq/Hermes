@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import moment from 'moment';
 import {
   StyleSheet, View, Text, SafeAreaView, FlatList
@@ -11,8 +11,20 @@ import dateFormatter from '../../lib/dateFormatter';
 import Colors from '../../constants/Colors';
 
 const MessageList = ({
-  authUserId, messages, loading, getMoreMessages, showOptions, setShowOptionsState
+  authUserId,
+  messages,
+  loading,
+  getMoreMessages,
+  showOptions,
+  setShowOptionsState,
+  subscribeToNewMessages,
+  subscribeToUpdatedMessages
 }) => {
+  useEffect(() => {
+    subscribeToNewMessages();
+    subscribeToUpdatedMessages();
+  }, []);
+
   const handleEndReached = () => {
     getMoreMessages();
   };

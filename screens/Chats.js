@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 
@@ -17,7 +17,11 @@ const Stack = createStackNavigator();
 
 export default function Chats({ navigation, loading, authUserId }) {
   const {
-    loading: activeChatsLoading, error: activeChatsError, data: activeChatsData
+    loading: activeChatsLoading,
+    error: activeChatsError,
+    data: activeChatsData,
+    subscribeToMore: subscribeToMoreActiveChats,
+    refetch: refetchActiveChats
   } = useQuery(GET_ACTIVE_CHATS);
   const [getContactProfile,
     { loading: contactProfileLoading, error: contactProfileError, data: contactProfileData }
@@ -55,6 +59,8 @@ export default function Chats({ navigation, loading, authUserId }) {
                 loading={activeChatsLoading}
                 data={activeChatsData && activeChatsData.getActiveUsers}
                 navigation={props.navigation}
+                subscribeToMoreActiveChats={subscribeToMoreActiveChats}
+                refetchActiveChats={refetchActiveChats}
               />
             </UserContext.Provider>
           );
