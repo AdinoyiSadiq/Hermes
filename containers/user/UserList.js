@@ -4,7 +4,7 @@ import UserItem from './UserItem';
 import UserContext from '../../context/User';
 
 export default function UserList({
-  navigation, type, data, users, subscribeToNewMessages
+  navigation, type, data, users, subscribeToNewMessages, subscribeToDeletedMessages
 }) {
   return (
     <UserContext.Consumer>
@@ -21,6 +21,7 @@ export default function UserList({
                       type={type}
                       navigation={navigation}
                       subscribeToNewMessages={subscribeToNewMessages}
+                      subscribeToDeletedMessages={subscribeToDeletedMessages}
                       authUserId={authUserId}
                       getActiveUserProfile={getActiveUserProfile}
                       active

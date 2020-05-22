@@ -14,6 +14,7 @@ import GET_MESSAGES from '../queries/getMessages';
 import GET_ACTIVE_CHATS from '../queries/getActiveChats';
 
 import MESSAGE_SUBSCRIPTION from '../subscriptions/messageSubscription';
+import DELETED_MESSAGE_SUBSCRIPTION from '../subscriptions/deletedMessageSubscription';
 import UPDATED_MESSAGE_SUBSCRIPTION from '../subscriptions/updatedMessageSubscription';
 
 export default function Messages({ navigation, route, setTabBarVisibility }) {
@@ -23,6 +24,7 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
   const [updatedUser, setUpdatedUser] = useState(false);
 
   const prevMessageSub = useRef();
+  const prevDeleteMessageSub = useRef();
   const prevUpdateMessageSub = useRef();
 
   const { navigate, goBack } = navigation;
@@ -92,6 +94,29 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
         return {
           ...prev,
           getMessages: [message, ...prev.getMessages]
+        };
+      }
+    });
+  };
+
+  const subscribeToDeletedMessages = () => {
+    // Create a subscription that only works one way specifically for the messaging section, 
+    // leave the active chats as is
+    if (prevDeleteMessageSub.current) {
+      prevDeleteMessageSub.current();
+    }
+    prevDeleteMessageSub.current = subscribeToMore({
+      document: DELETED_MESSAGE_SUBSCRIPTION,
+      variables: {
+        senderId: user.id,
+        receiverId: authUserId
+      },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        const { deletedMessage } = subscriptionData.data;
+        return {
+          ...prev,
+          getMessages: prev.getMessages.filter((message) => message.id !== deletedMessage.id)
         };
       }
     });
@@ -177,6 +202,7 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
               setShowOptionsState={setShowOptionsState}
               subscribeToNewMessages={subscribeToNewMessages}
               subscribeToUpdatedMessages={subscribeToUpdatedMessages}
+              subscribeToDeletedMessages={subscribeToDeletedMessages}
             />
             <ImageUploadContext.Consumer>
               {({ sendImage }) => (

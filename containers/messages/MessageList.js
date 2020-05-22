@@ -18,10 +18,12 @@ const MessageList = ({
   showOptions,
   setShowOptionsState,
   subscribeToNewMessages,
-  subscribeToUpdatedMessages
+  subscribeToUpdatedMessages,
+  subscribeToDeletedMessages
 }) => {
   useEffect(() => {
     subscribeToNewMessages();
+    subscribeToDeletedMessages();
     subscribeToUpdatedMessages();
   }, []);
 

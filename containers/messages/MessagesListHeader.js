@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet, Text, Image, View, TouchableOpacity, Dimensions
 } from 'react-native';
+import { useSubscription } from '@apollo/react-hooks';
 import * as Progress from 'react-native-progress';
 import Colors from '../../constants/Colors';
 import UserImage from '../../components/profile/UserImage';
 import formatText from '../../lib/formatText';
 
+import TYPING_SUBSCRIPTION from '../../subscriptions/typingSubscription';
+
 const MessagesListHeader = ({
   user, authUserId, navigateBack, navigateToContactProfile, uploadingImage
 }) => {
+  const [isTyping, setIsTyping] = useState({ state: false, user: false });
+
+  useSubscription(
+    TYPING_SUBSCRIPTION,
+    {
+      variables: { senderId: user.id, receiverId: authUserId },
+      onSubscriptionData: (res) => {
+        if (res.subscriptionData.data) {
+          setTypingState();
+        }
+      }
+    }
+  );
+
+  const setTypingState = () => {
+    setIsTyping({ state: true, user: user.id });
+    setTimeout(() => {
+      setIsTyping(false);
+    }, 3000);
+  };
   return (
     <>
       <View style={styles.headerContainer}>
@@ -31,7 +54,9 @@ const MessagesListHeader = ({
             <Text style={styles.userProfileDetailsName}>
               {`${formatText(user.firstname)} ${formatText(user.lastname)}`}
             </Text>
-            <Text style={styles.userProfileDetailsStatus}>Online</Text>
+            <Text style={styles.userProfileDetailsStatus}>
+              {(isTyping.state && isTyping.user === user.id) ? 'typing...' : ''}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>

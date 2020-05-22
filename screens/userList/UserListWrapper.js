@@ -15,6 +15,7 @@ import Colors from '../../constants/Colors';
 import SEARCH_CONTACTS from '../../queries/searchContacts';
 import SEARCH_USERS from '../../queries/searchUsers';
 import MESSAGE_SUBSCRIPTION from '../../subscriptions/messageSubscription';
+import DELETED_MESSAGE_SUBSCRIPTION from '../../subscriptions/deletedMessageSubscription';
 
 export default function UserListWrapper({
   type,
@@ -101,6 +102,14 @@ export default function UserListWrapper({
               subscribeToNewMessages={({ senderId, receiverId }) =>
                 subscribeToMoreActiveChats({
                   document: MESSAGE_SUBSCRIPTION,
+                  variables: { senderId, receiverId },
+                  updateQuery: () => {
+                    refetchActiveChats();
+                  }
+                })}
+              subscribeToDeletedMessages={({ senderId, receiverId }) =>
+                subscribeToMoreActiveChats({
+                  document: DELETED_MESSAGE_SUBSCRIPTION,
                   variables: { senderId, receiverId },
                   updateQuery: () => {
                     refetchActiveChats();
