@@ -14,6 +14,7 @@ const UserItem = ({
   type,
   navigation,
   subscribeToNewMessages,
+  subscribeToDeletedMessages,
   authUserId,
   getActiveUserProfile,
   active
@@ -21,6 +22,9 @@ const UserItem = ({
   useEffect(() => {
     if (subscribeToNewMessages) {
       subscribeToNewMessages({ senderId: user.id, receiverId: authUserId });
+    }
+    if (subscribeToDeletedMessages) {
+      subscribeToDeletedMessages({ senderId: user.id, receiverId: authUserId });
     }
   }, []);
 
