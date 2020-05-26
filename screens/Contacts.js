@@ -19,18 +19,20 @@ import GET_REJECTED_CONTACT_REQUESTS from '../queries/getRejectedContactRequests
 
 const Stack = createStackNavigator();
 
-export default function Contacts({ navigation, loading, authUserId }) {
+export default function Contacts({
+  navigation, loading, authUserId, reloadActiveChats
+}) {
   const {
-    loading: contactsLoading, error: contactsError, data: contactsData
+    loading: contactsLoading, error: contactsError, data: contactsData, subscribeToMore: subscribeToMoreContacts, refetch: refetchContacts, client
   } = useQuery(GET_ALL_CONTACTS);
   const [getContactProfile,
     { loading: contactProfileLoading, error: contactProfileError, data: contactProfileData }
   ] = useLazyQuery(GET_CONTACT_PROFILE);
   const {
-    loading: contactSentRequestLoading, error: contactSentRequestError, data: contactSentRequestData
+    loading: contactSentRequestLoading, error: contactSentRequestError, data: contactSentRequestData, refetch: refetchSentContactRequests
   } = useQuery(GET_SENT_CONTACT_REQUESTS);
   const {
-    loading: contactReceivedRequestLoading, error: contactReceivedRequestError, data: contactReceivedRequestData
+    loading: contactReceivedRequestLoading, error: contactReceivedRequestError, data: contactReceivedRequestData, refetch: refetchReceivedContactRequests
   } = useQuery(GET_RECEIVED_CONTACT_REQUESTS);
   const {
     loading: contactRejectedRequestLoading, error: contactRejectedRequestError, data: contactRejectedRequestData
@@ -77,6 +79,11 @@ export default function Contacts({ navigation, loading, authUserId }) {
                 contactReceivedRequestData={contactReceivedRequestData && contactReceivedRequestData.getReceivedContactRequests}
                 contactRejectedRequestData={contactRejectedRequestData && contactRejectedRequestData.getRejectedContactRequests}
                 navigation={props.navigation}
+                subscribeToMoreContacts={subscribeToMoreContacts}
+                refetchContacts={refetchContacts}
+                refetchSentContactRequests={refetchSentContactRequests}
+                refetchActiveChats={reloadActiveChats}
+                client={client}
               />
             </UserContext.Provider>
           );
@@ -89,6 +96,8 @@ export default function Contacts({ navigation, loading, authUserId }) {
               setTabBarVisibility={setTabBarVisibility}
               navigation={props.navigation}
               route={props.route}
+              refetchContacts={refetchContacts}
+              refetchReceivedContactRequests={refetchReceivedContactRequests}
             />
           );
         }}

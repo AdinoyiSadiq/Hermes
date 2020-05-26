@@ -129,17 +129,15 @@ const MessageList = ({
 
   return (
     <>
-      {messageDateRef.current && (
-        <View style={styles.messageListDateContainer}>
-          <View style={styles.messageDateContainer}>
-            <TextInput
-              style={styles.messageDate}
-              ref={messageDateComponentRef}
-              editable={false}
-            />
-          </View>
+      <View style={[styles.messageListDateContainer, (!messageDateRef.current && { opacity: 0 })]}>
+        <View style={styles.messageDateContainer}>
+          <TextInput
+            style={styles.messageDate}
+            ref={messageDateComponentRef}
+            editable={false}
+          />
         </View>
-      )}
+      </View>
 
       {(loading) && (
         <View>

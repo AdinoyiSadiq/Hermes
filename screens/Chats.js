@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useQuery, useLazyQuery } from '@apollo/react-hooks';
@@ -15,7 +15,9 @@ import GET_CONTACT_PROFILE from '../queries/getContactProfile';
 
 const Stack = createStackNavigator();
 
-export default function Chats({ navigation, loading, authUserId }) {
+export default function Chats({
+  navigation, loading, authUserId, reload
+}) {
   const {
     loading: activeChatsLoading,
     error: activeChatsError,
@@ -26,6 +28,10 @@ export default function Chats({ navigation, loading, authUserId }) {
   const [getContactProfile,
     { loading: contactProfileLoading, error: contactProfileError, data: contactProfileData }
   ] = useLazyQuery(GET_CONTACT_PROFILE);
+
+  useEffect(() => {
+    refetchActiveChats();
+  }, [reload]);
 
   const setTabBarVisibility = (state) => {
     navigation.setOptions({ tabBarVisible: state });

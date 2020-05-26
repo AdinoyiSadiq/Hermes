@@ -34,11 +34,19 @@ const TabBarIcon = ({ focused, name }) => {
 
 export default function Home() {
   const [uploadingImage, setUploadingImage] = useState({});
+  const [activeChatsLoading, setActiveChatsLoading] = useState(false);
   const [createMessage, { loading, error, data }] = useMutation(CREATE_MESSAGE);
 
   const {
     loading: authUserLoading, error: authUserError, data: authUserData, client
   } = useQuery(GET_AUTH_USER);
+
+  const reloadActiveChats = () => {
+    setActiveChatsLoading(true);
+    setTimeout(() => {
+      setActiveChatsLoading(false);
+    }, 1000);
+  };
 
   const sendImage = async ({ variables, imageFile, receiver }) => {
     setUploadingImage({ state: true, receiverId: receiver.id });
@@ -122,6 +130,7 @@ export default function Home() {
               navigation={props.navigation}
               loading={authUserLoading}
               authUserId={authUserData && authUserData.getAuthUser && authUserData.getAuthUser.id}
+              reload={activeChatsLoading}
             />
           </ImageUploadContext.Provider>
         )}
@@ -139,6 +148,7 @@ export default function Home() {
               navigation={props.navigation}
               loading={authUserLoading}
               authUserId={authUserData && authUserData.getAuthUser && authUserData.getAuthUser.id}
+              reloadActiveChats={reloadActiveChats}
             />
           </ImageUploadContext.Provider>
         )}

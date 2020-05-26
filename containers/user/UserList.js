@@ -4,7 +4,13 @@ import UserItem from './UserItem';
 import UserContext from '../../context/User';
 
 export default function UserList({
-  navigation, type, data, users, subscribeToNewMessages, subscribeToDeletedMessages
+  navigation,
+  type,
+  data,
+  users,
+  subscribeToNewMessages,
+  subscribeToDeletedMessages,
+  subscribeToAcceptedContacts
 }) {
   return (
     <UserContext.Consumer>
@@ -39,7 +45,9 @@ export default function UserList({
                         type={type}
                         navigation={navigation}
                         authUserId={authUserId}
+                        subscribeToNewMessages={subscribeToNewMessages}
                         getActiveUserProfile={getActiveUserProfile}
+                        subscribeToAcceptedContacts={subscribeToAcceptedContacts}
                       />
                     );
                   })

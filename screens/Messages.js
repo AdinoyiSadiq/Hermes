@@ -17,7 +17,9 @@ import MESSAGE_SUBSCRIPTION from '../subscriptions/messageSubscription';
 import DELETED_MESSAGE_SUBSCRIPTION from '../subscriptions/deletedMessageSubscription';
 import UPDATED_MESSAGE_SUBSCRIPTION from '../subscriptions/updatedMessageSubscription';
 
-export default function Messages({ navigation, route, setTabBarVisibility }) {
+export default function Messages({
+  navigation, route, setTabBarVisibility, refetchReceivedContactRequests, refetchContacts
+}) {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const [messageToReply, setMessageToReply] = useState(false);
@@ -229,6 +231,8 @@ export default function Messages({ navigation, route, setTabBarVisibility }) {
               updateUser={setUpdatedUser}
               authUserId={authUserId}
               navigateBack={navigateBack}
+              refetchReceivedContactRequests={refetchReceivedContactRequests}
+              refetchContacts={refetchContacts}
             />
           ) : <View />
       }
