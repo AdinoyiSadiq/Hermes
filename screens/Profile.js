@@ -14,12 +14,11 @@ import GET_USER_PROFILE from '../queries/getUserProfile';
 export default function Profile({ navigation, authUserId }) {
   const [profileLoading, setProfileLoading] = useState(false);
   const {
-    loading, error, data, refetch, client,
+    loading, data,
   } = useQuery(GET_USER_PROFILE);
 
   const refetchProfile = async () => {
     setProfileLoading(true);
-    await refetch();
     setProfileLoading(false);
   };
 

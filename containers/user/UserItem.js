@@ -9,12 +9,19 @@ import Colors from '../../constants/Colors';
 
 const UserItem = ({
   item: {
-    user, status, actionUserId, contact, profileImage, lastMessage, unreadMessages
+    user,
+    status,
+    actionUserId,
+    contact,
+    profileImage,
+    lastMessage,
+    unreadMessages,
   },
   type,
   navigation,
   subscribeToNewMessages,
   subscribeToDeletedMessages,
+  subscribeToAcceptedContacts,
   authUserId,
   getActiveUserProfile,
   active
@@ -25,6 +32,9 @@ const UserItem = ({
     }
     if (subscribeToDeletedMessages) {
       subscribeToDeletedMessages({ senderId: user.id, receiverId: authUserId });
+    }
+    if (!contact && subscribeToAcceptedContacts) {
+      subscribeToAcceptedContacts({ requesterId: actionUserId, receiverId: user.id });
     }
   }, []);
 

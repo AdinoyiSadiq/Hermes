@@ -14,19 +14,25 @@ import Colors from '../../constants/Colors';
 
 import SEARCH_CONTACTS from '../../queries/searchContacts';
 import SEARCH_USERS from '../../queries/searchUsers';
+import GET_ACTIVE_CHATS from '../../queries/getActiveChats';
 import MESSAGE_SUBSCRIPTION from '../../subscriptions/messageSubscription';
 import DELETED_MESSAGE_SUBSCRIPTION from '../../subscriptions/deletedMessageSubscription';
+import ACCEPTED_CONTACT_SUBSCRIPTION from '../../subscriptions/acceptedContactSubscription';
 
 export default function UserListWrapper({
   type,
   navigation,
   loading,
   data,
+  client,
   contactSentRequestData,
   contactReceivedRequestData,
   contactRejectedRequestData,
   subscribeToMoreActiveChats,
-  refetchActiveChats
+  subscribeToMoreContacts,
+  refetchActiveChats,
+  refetchContacts,
+  refetchSentContactRequests
 }) {
   const [searchState, setSearchState] = useState(false);
   const [searchContacts, {
@@ -99,20 +105,48 @@ export default function UserListWrapper({
                 && filterUsers(searchData.searchContacts, searchUserData.searchUsers)
               }
               navigation={navigation}
-              subscribeToNewMessages={({ senderId, receiverId }) =>
-                subscribeToMoreActiveChats({
-                  document: MESSAGE_SUBSCRIPTION,
-                  variables: { senderId, receiverId },
-                  updateQuery: () => {
-                    refetchActiveChats();
-                  }
-                })}
+              subscribeToNewMessages={({ senderId, receiverId }) => {
+                if (subscribeToMoreActiveChats) {
+                  subscribeToMoreActiveChats({
+                    document: MESSAGE_SUBSCRIPTION,
+                    variables: { senderId, receiverId },
+                    updateQuery: () => {
+                      refetchActiveChats();
+                    }
+                  });
+                }
+                if (subscribeToMoreContacts) {
+                  subscribeToMoreContacts({
+                    document: MESSAGE_SUBSCRIPTION,
+                    variables: { senderId, receiverId },
+                    updateQuery: () => {
+                      const activeUsers = client.readQuery({ query: GET_ACTIVE_CHATS });
+                      const existingActiveUser = activeUsers
+                                && activeUsers.getActiveUsers
+                                && (activeUsers.getActiveUsers)
+                                  .find((activeUser) => activeUser.user.id === senderId);
+                      if (!existingActiveUser) {
+                        refetchActiveChats();
+                      }
+                    }
+                  });
+                }
+              }}
               subscribeToDeletedMessages={({ senderId, receiverId }) =>
                 subscribeToMoreActiveChats({
                   document: DELETED_MESSAGE_SUBSCRIPTION,
                   variables: { senderId, receiverId },
                   updateQuery: () => {
                     refetchActiveChats();
+                  }
+                })}
+              subscribeToAcceptedContacts={({ requesterId, receiverId }) =>
+                subscribeToMoreContacts({
+                  document: ACCEPTED_CONTACT_SUBSCRIPTION,
+                  variables: { requesterId, receiverId },
+                  updateQuery: () => {
+                    refetchContacts();
+                    refetchSentContactRequests();
                   }
                 })}
             />

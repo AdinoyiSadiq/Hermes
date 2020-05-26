@@ -19,7 +19,7 @@ import GET_SENT_CONTACT_REQUESTS from '../../queries/getSentContactRequests';
 import GET_RECEIVED_CONTACT_REQUESTS from '../../queries/getReceivedContactRequests';
 
 const RestrictedContact = ({
-  user, authUserId, updateUser, navigateBack
+  user, authUserId, updateUser, navigateBack, refetchReceivedContactRequests, refetchContacts
 }) => {
   const [requestState, setRequestState] = useState(false);
   const [cancelRequestState, setCancelRequestState] = useState(false);
@@ -80,6 +80,10 @@ const RestrictedContact = ({
       variables: { requesterId: user.id },
       update: () => {
         updateUser(true);
+        if (refetchReceivedContactRequests) {
+          refetchReceivedContactRequests();
+          refetchContacts();
+        }
       }
     });
   };

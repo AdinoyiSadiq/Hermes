@@ -7,6 +7,7 @@ import { useMutation } from '@apollo/react-hooks';
 import Button from '../buttons/Button';
 import ProfileInput from '../forms/ProfileInput';
 import UPDATE_PROFILE from '../../mutations/updateProfile';
+import GET_USER_PROFILE from '../../queries/getUserProfile';
 import Colors from '../../constants/Colors';
 import formatText from '../../lib/formatText';
 import validateAuth from '../../lib/validation';
@@ -101,7 +102,15 @@ export default function ProfileForm({
       }
 
       if (Object.keys(updatedInputValues).length) {
-        const res = await updateProfile({ variables: { ...updatedInputValues } });
+        const res = await updateProfile({
+          variables: { ...updatedInputValues },
+          update: (cache, { data: { updateProfile: updatedProfile } }) => {
+            cache.writeQuery({
+              query: GET_USER_PROFILE,
+              data: { getProfile: updatedProfile }
+            });
+          }
+        });
         if (res && res.data && res.data.updateProfile) {
           setImage(null);
           fetchProfile();
