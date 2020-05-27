@@ -136,7 +136,7 @@ const MessageInput = ({
       {
         image ? (
           <View style={styles.container}>
-            <View style={styles.messageInputCaptionContainer}>
+            <View style={styles.messageInputContainer}>
               <TextInput
                 ref={messageInputCaptionRef}
                 value={caption}
@@ -169,13 +169,6 @@ const MessageInput = ({
                 placeholder="Type a message"
               />
             </View>
-            <TouchableOpacity>
-              <View style={[styles.pickerContainer, styles.emojiPickerContainer]}>
-                <Image
-                  source={require('../../assets/images/emoji-picker-icon.png')}
-                />
-              </View>
-            </TouchableOpacity>
             <TouchableOpacity onPress={handleSubmit}>
               <View style={[styles.pickerContainer, styles.messageSendButtonContainer]}>
                 <Image
@@ -203,9 +196,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.colorOrangeLight
   },
   messageInputContainer: {
-    width: '62.5%',
-  },
-  messageInputCaptionContainer: {
     flex: 1,
     paddingLeft: 10
   },
