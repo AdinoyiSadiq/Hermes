@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useState, useRef } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import { StyleSheet, View } from 'react-native';
 import { ifIphoneX } from 'react-native-iphone-x-helper';
 import MessagesListHeader from '../containers/messages/MessagesListHeader';
@@ -12,6 +12,7 @@ import ImageUploadContext from '../context/ImageUpload';
 
 import GET_MESSAGES from '../queries/getMessages';
 import GET_ACTIVE_CHATS from '../queries/getActiveChats';
+import UPDATE_MESSAGE from '../mutations/updateMessage';
 
 import MESSAGE_SUBSCRIPTION from '../subscriptions/messageSubscription';
 import DELETED_MESSAGE_SUBSCRIPTION from '../subscriptions/deletedMessageSubscription';
@@ -44,6 +45,7 @@ export default function Messages({
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only'
   });
+  const [updateMessages] = useMutation(UPDATE_MESSAGE);
 
   useEffect(() => {
     const activeUsers = client.readQuery({ query: GET_ACTIVE_CHATS });
@@ -70,6 +72,38 @@ export default function Messages({
       setTabBarVisibility(true);
     };
   }, []);
+
+  useEffect(() => {
+    if (messagesData && messagesData.getMessages) {
+      const messageIds = [];
+      messagesData.getMessages.forEach((message) => {
+        if ((message.sender.id !== authUserId) && (message.state !== 'delivered')) {
+          messageIds.push(message.id);
+        }
+      });
+
+      if (messageIds.length) {
+        updateMessages({
+          variables: { state: 'delivered', messageIds },
+          update: (cache) => {
+            const activeUsers = cache.readQuery({ query: GET_ACTIVE_CHATS });
+            const updatedActiveUsers = activeUsers
+                && activeUsers.getActiveUsers
+                && (activeUsers.getActiveUsers)
+                  .map((activeUser) => {
+                    const updatedActiveUser = activeUser;
+                    if (updatedActiveUser.user.id === user.id) updatedActiveUser.unreadMessages = 0;
+                    return updatedActiveUser;
+                  });
+            cache.writeQuery({
+              query: GET_ACTIVE_CHATS,
+              data: { getActiveUsers: [...updatedActiveUsers] }
+            });
+          },
+        });
+      }
+    }
+  }, [messagesData]);
 
   const navigateBack = async () => {
     await setTabBarVisibility(true);

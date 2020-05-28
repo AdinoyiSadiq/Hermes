@@ -9,6 +9,7 @@ import ContactProfile from './profile/ContactProfile';
 import Colors from '../constants/Colors';
 import Loader from '../components/loaders/Loader';
 import UserContext from '../context/User';
+import errorHandler from '../lib/errorHandler';
 
 import GET_ACTIVE_CHATS from '../queries/getActiveChats';
 import GET_CONTACT_PROFILE from '../queries/getContactProfile';
@@ -23,7 +24,8 @@ export default function Chats({
     error: activeChatsError,
     data: activeChatsData,
     subscribeToMore: subscribeToMoreActiveChats,
-    refetch: refetchActiveChats
+    refetch: refetchActiveChats,
+    client
   } = useQuery(GET_ACTIVE_CHATS);
   const [getContactProfile,
     { loading: contactProfileLoading, error: contactProfileError, data: contactProfileData }
@@ -47,6 +49,10 @@ export default function Chats({
         <Loader color="orange" />
       </View>
     );
+  }
+
+  if (activeChatsError) {
+    errorHandler((activeChatsError || contactProfileError), client);
   }
 
   return (
