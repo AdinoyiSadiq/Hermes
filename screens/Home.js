@@ -11,6 +11,7 @@ import Colors from '../constants/Colors';
 import ImageUploadContext from '../context/ImageUpload';
 import imageUploader from '../lib/imageUploader';
 import newActiveUserResponseMessage from '../lib/newActiveUserResponse';
+import errorHandler from '../lib/errorHandler';
 
 import GET_AUTH_USER from '../queries/getAuthUser';
 import GET_ACTIVE_CHATS from '../queries/getActiveChats';
@@ -35,7 +36,7 @@ const TabBarIcon = ({ focused, name }) => {
 export default function Home() {
   const [uploadingImage, setUploadingImage] = useState({});
   const [activeChatsLoading, setActiveChatsLoading] = useState(false);
-  const [createMessage, { loading, error, data }] = useMutation(CREATE_MESSAGE);
+  const [createMessage, { error: messageError }] = useMutation(CREATE_MESSAGE);
 
   const {
     loading: authUserLoading, error: authUserError, data: authUserData, client
@@ -104,6 +105,10 @@ export default function Home() {
       });
     }
   };
+
+  if (authUserError || messageError) {
+    errorHandler(authUserError, client);
+  }
 
   return (
     <BottomTab.Navigator

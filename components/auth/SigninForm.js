@@ -13,7 +13,7 @@ import SIGNIN_QUERY from '../../queries/signin';
 
 const fieldNames = ['email', 'password'];
 
-const SignupForm = ({ navigation }) => {
+const SignupForm = () => {
   const [authInput, setAuthInput] = useState({
     email: '',
     password: '',
@@ -62,9 +62,8 @@ const SignupForm = ({ navigation }) => {
   };
 
   const authenticateUser = async () => {
-    client.writeData({ data: { isAuth: true } });
     await AsyncStorage.setItem('authToken', data.signin.token);
-    navigation.navigate('home');
+    client.writeData({ data: { isAuth: true } });
   };
 
   if (data && data.signin) {

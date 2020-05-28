@@ -10,6 +10,7 @@ import ContactProfile from './profile/ContactProfile';
 import Colors from '../constants/Colors';
 import Loader from '../components/loaders/Loader';
 import UserContext from '../context/User';
+import errorHandler from '../lib/errorHandler';
 
 import GET_ALL_CONTACTS from '../queries/getAllContacts';
 import GET_CONTACT_PROFILE from '../queries/getContactProfile';
@@ -46,8 +47,14 @@ export default function Contacts({
     getContactProfile({ variables: { userId: user.id } });
   };
 
+  const error = contactsError || contactProfileError || contactSentRequestError || contactReceivedRequestError || contactRejectedRequestError;
+  if (error) {
+    errorHandler(error, client);
+  }
+
   if (
-    loading
+    error
+    || loading
     || contactSentRequestLoading
     || contactReceivedRequestLoading
     || contactRejectedRequestLoading

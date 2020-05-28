@@ -11,8 +11,7 @@ import { Query } from '@apollo/react-components';
 import Signup from './screens/auth/Signup';
 import Signin from './screens/auth/Signin';
 import Home from './screens/Home';
-import Authenticated from './components/auth/isAuthenticated';
-import RequireAuth from './components/auth/requireAuth';
+import { navigationRef } from './navigation/RootNavigation';
 
 import Colors from './constants/Colors';
 
@@ -48,22 +47,50 @@ export default function App({ skipLoadingScreen }) {
   if (!isLoadingComplete && !skipLoadingScreen) {
     return null;
   }
+
+  const AuthStack = () => {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          cardStyle: { backgroundColor: Colors.colorWhite }
+        }}
+      >
+        <Stack.Screen name="signup" component={Signup} />
+        <Stack.Screen name="signin" component={Signin} />
+      </Stack.Navigator>
+    );
+  };
+
+  const MainStack = () => {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          cardStyle: { backgroundColor: Colors.colorWhite }
+        }}
+      >
+        <Stack.Screen name="home" component={Home} />
+      </Stack.Navigator>
+    );
+  };
+
+  const Switch = ({ isAuth }) => {
+    return (
+      <>
+        { !isAuth && <AuthStack /> }
+        { isAuth && <MainStack /> }
+      </>
+    );
+  };
+
   return (
     <ApolloProvider client={createClient(token)}>
       <View style={styles.container}>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Query query={IS_AUTH_QUERY}>
             {({ data: { isAuth } }) => (
-              <Stack.Navigator
-                screenOptions={{
-                  headerShown: false,
-                  cardStyle: { backgroundColor: Colors.colorWhite }
-                }}
-              >
-                <Stack.Screen name="signup" component={Authenticated(Signup, isAuth)} />
-                <Stack.Screen name="signin" component={Authenticated(Signin, isAuth)} />
-                <Stack.Screen name="home" component={RequireAuth(Home, isAuth)} />
-              </Stack.Navigator>
+              <Switch isAuth={isAuth} />
             )}
           </Query>
         </NavigationContainer>
